@@ -16,7 +16,7 @@
 Приложение должно уметь:
 ---
 1. Просмотр всех событий
-2. Добавление ногово события
+2. Добавление нового события
 3. Добавление заявки на участие в событии
 
 
@@ -30,7 +30,9 @@
 - Docker
 
 ## Structure DB
-<img src="https://sun9-77.userapi.com/impf/c824600/v824600823/45a96/zlnOcdIXn98.jpg?size=520x0&quality=95&sign=7c660785d5027c286555bba9aed04863">
+
+## DB state
+<img src="./State_db.png">
 
 
 ---
@@ -81,7 +83,7 @@ POST /users/{userId}/events
 ~~~
 GET /users/{userId}/events/{eventId}
 ~~~
-- Изменить события добавленного тукущим пользователем
+- Изменить события добавленного текущим пользователем
 ~~~
 PATCH /users/{userId}/events/{eventId}
 ~~~
@@ -89,7 +91,7 @@ PATCH /users/{userId}/events/{eventId}
 ~~~
 GET /users/{userId}/events/{eventId}/requests
 ~~~
-- Изменить статус (подтверждение, отмена) заявок на участие в событии тукущего пользователя
+- Изменить статус (подтверждение, отмена) заявок на участие в событии текущего пользователя
 ~~~
 PATCH /users/{userId}/events/{eventId}/requests
 ~~~
@@ -126,7 +128,7 @@ PATCH /admin/categories/{carId}
 ~~~
 ###
 ### В Разделе СОБЫТИЯ:
-- Поск событий
+- Поиск событий
 ~~~
 GET /admin/events
 ~~~

@@ -1,4 +1,4 @@
-package ru.practicum.adm;
+package ru.practicum;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author MR.k0F31n
  */
 @SpringBootApplication
-public class AdminServiceApp {
+public class MainServiceApp {
     public static void main(String[] args) {
-        SpringApplication.run(AdminServiceApp.class, args);
+        SpringApplication.run(MainServiceApp.class, args);
     }
 }

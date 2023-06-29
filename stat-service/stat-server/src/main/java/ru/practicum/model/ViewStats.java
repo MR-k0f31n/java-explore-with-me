@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class VievStats {
+public class ViewStats {
     /**
      * Название сервиса
      */
@@ -20,7 +20,7 @@ public class VievStats {
      */
     private String uri;
     /**
-     * Количество просмотров
+     * Количество просмотров count
      */
     private Integer hits;
 }

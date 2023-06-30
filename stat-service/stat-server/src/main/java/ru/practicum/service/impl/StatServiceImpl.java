@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.practicum.util.Mapper.toObject;
+import static ru.practicum.util.Mapper.viewToDto;
 
 /**
  * @author MR.k0F31n
@@ -42,9 +43,9 @@ public class StatServiceImpl implements StatService {
             throw new InvalidParameterException("End time no be after start time");
         }
         log.info("Get statistic from {} to {}, for URI's {} ,IP unique: {}", start, end, uris, unique);
-        if(unique) {
-            return repository
+        if (unique) {
+            return viewToDto(repository.findAllByUrisFromUniqueIp(start, end, uris));
         }
-        return null;
+        return viewToDto(repository.findAllByUris(start,end,uris));
     }
 }

@@ -12,15 +12,17 @@ import java.util.List;
 public interface StatService {
     /**
      * Save info from statistic
+     *
      * @param input
      */
-    void save (EndpointHitDto input);
+    void save(EndpointHitDto input);
 
     /**
      * Get collection statistics from date start to end date, for uris list and unique or not IP
-     * @param start date start report
-     * @param end date end report
-     * @param uris list uri's
+     *
+     * @param start  date start report
+     * @param end    date end report
+     * @param uris   list uri's
      * @param unique unique IP true or false
      * @return List short stat
      */

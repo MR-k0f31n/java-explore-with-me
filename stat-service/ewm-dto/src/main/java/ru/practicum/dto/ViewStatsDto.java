@@ -1,8 +1,17 @@
 package ru.practicum.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * @author MR.k0F31n
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ViewStatsDto {
     /**
      * Название сервиса
@@ -15,5 +24,5 @@ public class ViewStatsDto {
     /**
      * Количество просмотров
      */
-    private Integer hits;
+    private Long hits;
 }

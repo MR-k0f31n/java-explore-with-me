@@ -29,7 +29,7 @@ public class StatClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> saveHit (EndpointHitDto input) {
+    public ResponseEntity<Object> saveHit(EndpointHitDto input) {
         return post("/hit", input);
     }
 
@@ -40,6 +40,6 @@ public class StatClient extends BaseClient {
                 "uris", uris,
                 "unique", unique
         );
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}",null, parameters);
+        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", null, parameters);
     }
 }

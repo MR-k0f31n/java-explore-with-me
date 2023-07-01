@@ -18,7 +18,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> InvalidParameterException(final InvalidParameterException exception) {
+    public Map<String, String> invalidParameterException(final InvalidParameterException exception) {
         log.warn("Error! InvalidParameterException, server status: '{}' text message: '{}'",
                 HttpStatus.BAD_REQUEST, exception.getMessage());
         return Map.of("End time no be after start time", exception.getMessage());

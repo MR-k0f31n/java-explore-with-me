@@ -8,6 +8,7 @@ import lombok.Data;
  * @author MR.k0F31n
  */
 @Data
+@AllArgsConstructor
 @Builder
 public class ViewStats {
     /**
@@ -22,10 +23,4 @@ public class ViewStats {
      * Количество просмотров count
      */
     private Long hits;
-
-    public ViewStats(String app, String uri, Long hits) {
-        this.app = app;
-        this.uri = uri;
-        this.hits = hits;
-    }
 }

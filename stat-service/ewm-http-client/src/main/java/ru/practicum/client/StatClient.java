@@ -1,13 +1,14 @@
 package ru.practicum.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.base.BaseClient;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import ru.practicum.dto.EndpointHitDto;
 
 import java.util.List;
@@ -16,21 +17,32 @@ import java.util.Map;
 /**
  * @author MR.k0F31n
  */
-@Service
-public class StatClient extends BaseClient {
+public class StatClient {
+    private final RestTemplate rest;
+    private final String serverUrl;
 
-    @Autowired
-    public StatClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    public StatClient(@Value("${stats-server.url}")String serverUrl) {
+        this.rest = new RestTemplate();
+        this.serverUrl = serverUrl;
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        rest.setRequestFactory(requestFactory);
     }
 
     public ResponseEntity<Object> saveHit(EndpointHitDto input) {
-        return post("/hit", input);
+        ResponseEntity<Object> response;
+        try {
+            response = rest.postForEntity(serverUrl + "/hit", input, Object.class);
+        } catch (HttpStatusCodeException exception) {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getResponseBodyAsByteArray());
+        }
+        ResponseEntity.BodyBuilder responseBuild = ResponseEntity.status(response.getStatusCode());
+
+        if (response.hasBody()) {
+            return responseBuild.body(response.getBody());
+        }
+
+        return responseBuild.build();
     }
 
     public ResponseEntity<Object> getStatistics(String start, String end, List<String> uris, Boolean unique) {
@@ -40,6 +52,20 @@ public class StatClient extends BaseClient {
                 "uris", uris,
                 "unique", unique
         );
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", null, parameters);
+        ResponseEntity<Object> response;
+
+        try {
+            response = rest.getForEntity(serverUrl + "/stats", Object.class, parameters);
+        } catch (HttpStatusCodeException exception) {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getResponseBodyAsByteArray());
+        }
+
+        ResponseEntity.BodyBuilder responseBuild = ResponseEntity.status(response.getStatusCode());
+
+        if(response.hasBody()) {
+            return responseBuild.body(response.getBody());
+        }
+
+        return responseBuild.build();
     }
 }

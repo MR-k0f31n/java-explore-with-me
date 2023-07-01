@@ -43,9 +43,16 @@ public class StatServiceImpl implements StatService {
             throw new InvalidParameterException("End time no be after start time");
         }
         log.info("Get statistic from {} to {}, for URI's {} ,IP unique: {}", start, end, uris, unique);
-        if (unique) {
-            return viewToDto(repository.findAllByUrisFromUniqueIp(start, end, uris));
+        if (uris.isEmpty() || uris == null) {
+            if (unique) {
+                return viewToDto(repository.findAllFromUniqueIp(start, end));
+            }
+            return viewToDto(repository.findAll(start, end));
+        } else {
+            if (unique) {
+                return viewToDto(repository.findAllByUrisFromUniqueIp(start, end, uris));
+            }
+            return viewToDto(repository.findAllByUris(start,end,uris));
         }
-        return viewToDto(repository.findAllByUris(start,end,uris));
     }
 }

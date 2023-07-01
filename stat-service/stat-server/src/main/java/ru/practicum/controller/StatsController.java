@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 public class StatsController {
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd|HH:mm:ss";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final StatService service;
 
     @PostMapping("/hit")
@@ -34,7 +34,7 @@ public class StatsController {
                                             @DateTimeFormat(pattern = DATE_TIME_FORMAT)
                                             @RequestParam(value = "end") LocalDateTime end,
                                             @RequestParam(required = false) List<String> uris,
-                                            @RequestParam(defaultValue = "false") boolean unique) {
+                                            @RequestParam(required = false, defaultValue = "false") Boolean unique) {
         log.info("Get statistic, param - data start: {}, data end: {}, List uris: {}, unique: {}", start, end, uris, unique);
         return service.getStatistics(start, end, uris, unique);
     }

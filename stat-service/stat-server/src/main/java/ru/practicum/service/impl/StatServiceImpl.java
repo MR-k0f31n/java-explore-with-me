@@ -52,7 +52,7 @@ public class StatServiceImpl implements StatService {
             if (unique) {
                 return viewToDto(repository.findAllByUrisFromUniqueIp(start, end, uris));
             }
-            return viewToDto(repository.findAllByUris(start,end,uris));
+            return viewToDto(repository.findAllByUris(start, end, uris));
         }
     }
 }

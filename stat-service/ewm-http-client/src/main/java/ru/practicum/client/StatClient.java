@@ -1,14 +1,12 @@
 package ru.practicum.client;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import ru.practicum.dto.EndpointHitDto;
 
 import java.util.List;
@@ -21,7 +19,7 @@ public class StatClient {
     private final RestTemplate rest;
     private final String serverUrl;
 
-    public StatClient(@Value("${stats-server.url}")String serverUrl) {
+    public StatClient(@Value("${stats-server.url}") String serverUrl) {
         this.rest = new RestTemplate();
         this.serverUrl = serverUrl;
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -62,7 +60,7 @@ public class StatClient {
 
         ResponseEntity.BodyBuilder responseBuild = ResponseEntity.status(response.getStatusCode());
 
-        if(response.hasBody()) {
+        if (response.hasBody()) {
             return responseBuild.body(response.getBody());
         }
 

@@ -11,7 +11,9 @@ import ru.practicum.service.StatService;
 
 import javax.transaction.Transactional;
 import java.security.InvalidParameterException;
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static ru.practicum.util.Mapper.toObject;
@@ -25,6 +27,7 @@ import static ru.practicum.util.Mapper.viewToDto;
 @AllArgsConstructor
 @Transactional
 public class StatServiceImpl implements StatService {
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final StatRepository repository;
 
     @Transactional
@@ -37,22 +40,30 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public List<ViewStatsDto> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (end.isBefore(start)) {
+    public List<ViewStatsDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
+        LocalDateTime startDate = parseTime(start);
+        LocalDateTime endDate = parseTime(end);
+        if (endDate.isBefore(startDate)) {
             log.info("Error detected, start time {}, end time {}", start, end);
             throw new InvalidParameterException("End time no be after start time");
         }
         log.info("Get statistic from {} to {}, for URI's {} ,IP unique: {}", start, end, uris, unique);
-        if (uris.isEmpty() || uris == null) {
-            if (unique) {
-                return viewToDto(repository.findAllFromUniqueIp(start, end));
-            }
-            return viewToDto(repository.findAll(start, end));
+        if (uris.size() > 0) {
+            return unique ?
+                    viewToDto(repository.getAllByUrisAndUniqueIp(startDate, endDate, uris)) :
+                    viewToDto(repository.getAllByUris(startDate, endDate, uris));
         } else {
-            if (unique) {
-                return viewToDto(repository.findAllByUrisFromUniqueIp(start, end, uris));
-            }
-            return viewToDto(repository.findAllByUris(start, end, uris));
+            return unique ?
+                    viewToDto(repository.getAllByUniqueIp(startDate, endDate)) :
+                    viewToDto(repository.getAll(startDate, endDate));
+        }
+    }
+
+    private LocalDateTime parseTime(String date) {
+        try {
+            return LocalDateTime.parse(date, DateTimeFormatter.ofPattern(DATE_FORMAT));
+        } catch (DateTimeException exception) {
+            throw new InvalidParameterException("Incorrect format date: " + date);
         }
     }
 }

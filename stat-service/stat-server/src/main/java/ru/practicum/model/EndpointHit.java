@@ -45,6 +45,6 @@ public class EndpointHit {
     /**
      * Дата и время, когда был совершен запрос к эндпоинту (в формате "yyyy-MM-dd HH:mm:ss")
      */
-    @Column(nullable = false)
+    @Column(name = "created", nullable = false)
     private LocalDateTime timestamp;
 }

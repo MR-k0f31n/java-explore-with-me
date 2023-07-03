@@ -3,7 +3,6 @@ package ru.practicum.service;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -26,5 +25,5 @@ public interface StatService {
      * @param unique unique IP true or false
      * @return List short stat
      */
-    List<ViewStatsDto> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
+    List<ViewStatsDto> getStatistics(String start, String end, List<String> uris, Boolean unique);
 }

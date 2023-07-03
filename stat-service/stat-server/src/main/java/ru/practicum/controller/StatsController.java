@@ -2,13 +2,15 @@ package ru.practicum.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.service.StatService;
 
-import java.time.LocalDateTime;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -18,23 +20,22 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class StatsController {
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final StatService service;
 
-    @PostMapping("/hit")
-    public void save(@RequestBody EndpointHitDto inputHit) {
+    @PostMapping(value = "/hit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void save(@Valid @RequestBody EndpointHitDto inputHit) {
         log.info("Hit save : {}", inputHit);
         service.save(inputHit);
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStatistics(@DateTimeFormat(pattern = DATE_TIME_FORMAT)
-                                            @RequestParam(value = "start") LocalDateTime start,
-                                            @DateTimeFormat(pattern = DATE_TIME_FORMAT)
-                                            @RequestParam(value = "end") LocalDateTime end,
+    public List<ViewStatsDto> getStatistics(@NotEmpty @RequestParam(value = "start") String start,
+                                            @NotEmpty @RequestParam(value = "end") String end,
                                             @RequestParam(required = false) List<String> uris,
-                                            @RequestParam(required = false, defaultValue = "false") Boolean unique) {
+                                            @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Get statistic, param - data start: {}, data end: {}, List uris: {}, unique: {}", start, end, uris, unique);
         return service.getStatistics(start, end, uris, unique);
     }

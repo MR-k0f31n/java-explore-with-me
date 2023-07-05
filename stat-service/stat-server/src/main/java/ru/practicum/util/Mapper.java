@@ -18,7 +18,7 @@ public class Mapper {
                 endpointHit.getApp(),
                 endpointHit.getUri(),
                 endpointHit.getIp(),
-                endpointHit.getTimestamp()
+                endpointHit.getCreatedDate()
         );
     }
 

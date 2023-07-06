@@ -1,0 +1,19 @@
+package ru.practicum.dto.location;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * @author MR.k0F31N
+ */
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class LocationDto {
+    private Double lat;
+    private Double lon;
+}

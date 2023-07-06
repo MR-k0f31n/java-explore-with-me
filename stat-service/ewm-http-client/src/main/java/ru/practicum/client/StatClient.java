@@ -8,7 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.base.BaseClient;
-import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.statistic.EndpointHitDto;
 
 import java.util.List;
 import java.util.Map;

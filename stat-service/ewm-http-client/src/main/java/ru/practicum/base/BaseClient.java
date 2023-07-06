@@ -8,6 +8,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author MR.k0F31n
+ */
 public class BaseClient {
     protected final RestTemplate rest;
 

@@ -4,7 +4,7 @@ package ru.practicum.enums;
  * @author MR.k0F31N
  */
 
-public enum Status {
+public enum RequestStatus {
     CONFIRMED,
     REJECTED
 }

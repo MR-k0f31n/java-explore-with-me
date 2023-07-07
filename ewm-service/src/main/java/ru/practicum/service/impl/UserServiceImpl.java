@@ -37,9 +37,9 @@ public class UserServiceImpl implements UserService {
         final User user = toModel(newUser);
         log.debug("try save new user {}", user);
         validationEmail(newUser.getEmail());
-        final User result = userRepository.save(user);
-        log.debug("User created successfully, user id {}", result.getId());
-        return toDto(result);
+        final User savedUser = userRepository.save(user);
+        log.debug("User created successfully, user id {}", savedUser.getId());
+        return toDto(savedUser);
     }
 
     @Override
@@ -49,7 +49,9 @@ public class UserServiceImpl implements UserService {
                 userRepository.findByIdIn(ids, page) :
                 userRepository.findAll(page).getContent();
         log.debug("Number of users found '{}'", result.size());
-        return result.stream().map(UserMapper::toDto).collect(Collectors.toList());
+        return result.stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -58,7 +60,7 @@ public class UserServiceImpl implements UserService {
         log.info("Task deleted user by id {}", userId);
         if (!userRepository.existsById(userId)) throw new NotFoundException("User with id '" + userId + "' not found");
         userRepository.deleteById(userId);
-        log.debug("User id {} deleted is {}", userId, !userRepository.existsById(userId));
+        log.debug("User with id {} deleted - {}", userId, !userRepository.existsById(userId));
     }
 
     private void validationEmail(String email) {

@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS events CASCADE;
+DROP TABLE IF EXISTS compilations CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -36,4 +37,17 @@ CREATE TABLE IF NOT EXISTS events
     views BIGINT,
     CONSTRAINT fk_event_to_user FOREIGN KEY(initiator_id) REFERENCES users(id),
     CONSTRAINT fk_event_to_category FOREIGN KEY(category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE IF NOT EXISTS compilations
+(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE,
+    pinned BOOLEAN NOT NULL,
+    title VARCHAR(120) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS compilations_to_event
+(
+    event_id            BIGINT NOT NULL,
+    compilation_id      BIGINT NOT NULL,
 );

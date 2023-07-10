@@ -25,4 +25,8 @@ public interface EventService {
     // изменение статуса заявки на участие нет реквестов!
 
     List<EventFullDto> getAllEventForParamFromAdmin(Long[] users, String[] states, Long[] categories, String rangeStart, String rangeEnd, Pageable pageable);
+
+    EventFullDto getEventByIdFromAdmin(Long eventId);
+
+    List<EventShortDto> getAllEventFromPublic(String search, String[] categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, Pageable pageable);
 }

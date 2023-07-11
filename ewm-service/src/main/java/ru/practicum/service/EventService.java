@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.input.NewEventDto;
+import ru.practicum.dto.input.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public interface EventService {
 
     EventFullDto updateEventByUsersIdAndEventIdFromUser(Long userId, Long eventId, UpdateEventUserRequest update);
 
-    // получение реквестов по гет нет сущности реквеста!
+    List<ParticipationRequestDto> getAllParticipationRequestsFromEventByOwner(Long userId, Long EventId);
 
     // изменение статуса заявки на участие нет реквестов!
 

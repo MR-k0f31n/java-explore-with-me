@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS compilations
 
 CREATE TABLE IF NOT EXISTS compilations_to_event
 (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     event_id            BIGINT NOT NULL,
     compilation_id      BIGINT NOT NULL,
+    CONSTRAINT fk_event_compilation_to_event FOREIGN KEY(event_id) REFERENCES events(id) ON UPDATE CASCADE,
+    CONSTRAINT fk_event_compilation_to_compilation FOREIGN KEY(compilation_id) REFERENCES compilations(id) ON UPDATE CASCADE
 );

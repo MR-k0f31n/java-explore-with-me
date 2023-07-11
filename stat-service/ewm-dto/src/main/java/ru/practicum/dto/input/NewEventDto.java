@@ -1,5 +1,6 @@
 package ru.practicum.dto.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.dto.location.Location;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 
 /**
  * @author MR.k0F31n
@@ -29,8 +31,9 @@ public class NewEventDto {
     private Long category;
     @Length(max = 7000, min = 20, message = "Description cannot be length min 20 max 7000")
     private String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @NotBlank(message = "Event Date cannot be blank")
-    private String eventDate;
+    private LocalDateTime eventDate;
     @NotNull(message = "Location cannot be null")
     private Location location;
     @NotNull(message = "Paid cannot be null")

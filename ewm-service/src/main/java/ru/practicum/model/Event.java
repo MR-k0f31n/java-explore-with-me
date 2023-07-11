@@ -1,8 +1,8 @@
 package ru.practicum.model;
 
 import lombok.*;
+import ru.practicum.dto.event.enums.EventStatus;
 import ru.practicum.dto.location.Location;
-import ru.practicum.enums.EventStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

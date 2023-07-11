@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserService {
     UserDto created(NewUserDto newUser);
 
-    List<UserDto> findUserById(Long[] ids, Pageable page);
+    List<UserDto> findUserById(List<Long> ids, Pageable page);
 
     void delete(Long userId);
 }

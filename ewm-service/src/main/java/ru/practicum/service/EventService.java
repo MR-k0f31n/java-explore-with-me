@@ -1,12 +1,12 @@
 package ru.practicum.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.dto.input.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -23,11 +23,15 @@ public interface EventService {
 
     List<ParticipationRequestDto> getAllParticipationRequestsFromEventByOwner(Long userId, Long EventId);
 
-    // изменение статуса заявки на участие нет реквестов!
+    EventRequestStatusUpdateResult updateStatusRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest update);
 
-    List<EventFullDto> getAllEventForParamFromAdmin(Long[] users, String[] states, Long[] categories, String rangeStart, String rangeEnd, Pageable pageable);
+    List<EventFullDto> getAllEventForParamFromAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart,
+                                                    LocalDateTime rangeEnd, Pageable pageable);
 
-    EventFullDto getEventByIdFromAdmin(Long eventId);
+    EventFullDto updateEventByEventIdFromAdmin(Long eventId, UpdateEventAdminRequest update);
 
-    List<EventShortDto> getAllEventFromPublic(String search, String[] categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, Pageable pageable);
+    List<EventShortDto> getAllEventFromPublic(String search, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                              LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable);
+
+    EventFullDto getEventById(Long eventId);
 }

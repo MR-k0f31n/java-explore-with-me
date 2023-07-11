@@ -48,4 +48,15 @@ public class ErrorHandler {
                 .reason("Email conflict, email exist")
                 .build();
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleIncorrectParametersException(IncorrectParametersException exception) {
+        log.error("Error! Bad request, server status: '{}' text message: '{}'", HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST.toString())
+                .message(exception.getMessage())
+                .reason("Incorrect parameters")
+                .build();
+    }
 }

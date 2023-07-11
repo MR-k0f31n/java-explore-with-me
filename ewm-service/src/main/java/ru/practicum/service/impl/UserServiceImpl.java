@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findUserById(Long[] ids, Pageable page) {
+    public List<UserDto> findUserById(List<Long> ids, Pageable page) {
         log.info("Task get collection users");
         List<User> result = (ids != null) ?
                 userRepository.findByIdIn(ids, page) :

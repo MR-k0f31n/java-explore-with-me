@@ -1,7 +1,7 @@
-package ru.practicum.model;
+package ru.practicum.dto.event;
 
 import lombok.*;
-import ru.practicum.enums.RequestStatus;
+import ru.practicum.dto.event.enums.RequestStatus;
 
 import java.util.List;
 

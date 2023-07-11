@@ -27,7 +27,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/admin/users")
-    public List<UserDto> getUsersInfoByIds(@RequestParam(value = "ids", required = false) Long[] ids,
+    public List<UserDto> getUsersInfoByIds(@RequestParam(value = "ids", required = false) List<Long> ids,
                                            @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
         log.trace("Endpoint request: GET admin/users");

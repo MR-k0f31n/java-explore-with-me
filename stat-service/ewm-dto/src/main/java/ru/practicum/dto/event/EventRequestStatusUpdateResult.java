@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.dto.event;
 
 import lombok.*;
 import ru.practicum.dto.input.ParticipationRequestDto;

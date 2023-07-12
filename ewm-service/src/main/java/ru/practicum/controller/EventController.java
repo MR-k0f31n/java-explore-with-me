@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.dto.input.ParticipationRequestDto;
+import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 import ru.practicum.exception.IncorrectParametersException;
 import ru.practicum.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
@@ -65,7 +67,7 @@ public class EventController {
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventByOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                            @PathVariable(value = "eventId") @Min(1) Long eventId,
-                                           @RequestBody UpdateEventUserRequest inputUpdate) {
+                                           @Valid @RequestBody UpdateEventUserRequest inputUpdate) {
         log.trace("Endpoint request: PATCH /users/{userId}/events/{eventId}");
         log.debug("Param: user id = '{}', event id = '{}', request body = '{}'", userId, eventId, inputUpdate);
         return eventService.updateEventByUsersIdAndEventIdFromUser(userId, eventId, inputUpdate);
@@ -125,19 +127,21 @@ public class EventController {
                                             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                             @RequestParam(value = "sort", defaultValue = "event_date") String sortBy,
                                             @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
-                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
+                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size,
+                                            HttpServletRequest request) {
         log.trace("Public endpoint request: GET /events");
         log.debug("Param: search by = '{}', id categories = '{}', paid = {}, start range = '{}', end range = '{}', " +
                         "only available = {}, sort by = '{}', pageable from = '{}', pageable size = '{}'", search, categories, paid,
                 rangeStart, rangeEnd, onlyAvailable, sortBy, from, size);
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, sortBy));
-        return eventService.getAllEventFromPublic(search, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable);
+        return eventService.getAllEventFromPublic(search, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable, request);
     }
 
     @GetMapping("/events/{eventId}")
-    public EventFullDto getEventById(@PathVariable(value = "eventId") @Min(1) Long eventId) {
+    public EventFullDto getEventById(@PathVariable(value = "eventId") @Min(1) Long eventId,
+                                     HttpServletRequest request) {
         log.trace("Public endpoint request: GET /events/{eventId}");
         log.debug("Param: event id ='{}'", eventId);
-        return eventService.getEventById(eventId);
+        return eventService.getEventById(eventId, request);
     }
 }

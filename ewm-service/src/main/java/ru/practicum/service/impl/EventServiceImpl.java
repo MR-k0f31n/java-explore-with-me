@@ -1,13 +1,17 @@
+
 package ru.practicum.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.client.StatClient;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.event.enums.EventStatus;
 import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.dto.input.ParticipationRequestDto;
+import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.TimeValidationException;
@@ -20,6 +24,8 @@ import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.UserRepository;
 import ru.practicum.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +43,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final StatClient statClient;
 
     @Override
     public List<EventShortDto> getEventsByUserId(Long userId, Pageable pageable) {
@@ -47,16 +54,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto createNewEvent(Long userId, NewEventDto eventDto) {
         final User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id = '" + userId + "' not found!"));
         log.debug("User received");
-        final LocalDateTime twoHoursLater = LocalDateTime.now().plusHours(2);
-        if (eventDto.getEventDate().isBefore(twoHoursLater))
-            throw new TimeValidationException("Time start event cannot be after two hours started event");
-        log.debug("Time started event is check - ok");
-        final Category category = categoryRepository.findById(eventDto.getCategory()).orElseThrow(
-                () -> new NotFoundException("Category with id = '" + eventDto.getCategory() + "' not found"));
+        isBeforeTwoHours(eventDto.getEventDate());
+        final Category category = getCategoryById(eventDto.getCategory());
         log.debug("Category received");
         final Event event = toModel(eventDto);
         log.debug("Convert to event. Event after : [{}]", event);
@@ -79,16 +83,73 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId) {
         isExistsUser(userId);
-        log.debug("Check user exist - ok");
-        final Event event = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(
-                () -> new NotFoundException("Event with id = '" + eventId + "' and/or initiator with id = '" + userId + "' not found"));
+        final Event event = getEvenByInitiatorAndEventId(userId, eventId);
         log.debug("Event received [{}]", event);
         return toFullDto(event);
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByUsersIdAndEventIdFromUser(Long userId, Long eventId, UpdateEventUserRequest update) {
-        return null;
+        isExistsUser(userId);
+        int sizeUpdate = 0;
+        final Event oldEvent = getEvenByInitiatorAndEventId(userId, eventId);
+        if (update.getEventDate() != null) {
+            final LocalDateTime newDate = update.getEventDate();
+            isBeforeTwoHours(newDate);
+            oldEvent.setEventDate(newDate);
+            sizeUpdate++;
+            log.debug("Event date update '{}'", newDate);
+        }
+        if (!oldEvent.getInitiator().getId().equals(userId))
+            throw new ValidationException("Only owner can update event");
+        if (oldEvent.getEventStatus().equals(EventStatus.PUBLISHED))
+            throw new ValidationException("Only reject or cancelled can update event");
+        if (update.getAnnotation() != null && !update.getAnnotation().isBlank()) {
+            oldEvent.setAnnotation(update.getAnnotation());
+            sizeUpdate++;
+            log.debug("Annotation updated '{}'", oldEvent.getAnnotation());
+        }
+        if (update.getCategory() != null) {
+            final Category category = getCategoryById(update.getCategory());
+            log.debug("Category received");
+            oldEvent.setCategory(category);
+            sizeUpdate++;
+            log.debug("Category update [{}]", category);
+        }
+        if (update.getDescription() != null) {
+            oldEvent.setDescription(update.getDescription());
+            sizeUpdate++;
+            log.debug("Description update '{}'", oldEvent.getDescription());
+        }
+        if (update.getLocation() != null) {
+            oldEvent.setLocation(update.getLocation());
+            sizeUpdate++;
+            log.debug("Location update [{}]", oldEvent.getLocation());
+        }
+        if (update.getParticipantLimit() != null) {
+            oldEvent.setParticipantLimit(update.getParticipantLimit());
+            sizeUpdate++;
+            log.debug("Participant limit update '{}'", oldEvent.getParticipantLimit());
+        }
+        if (update.getRequestModeration() != null) {
+            oldEvent.setRequestModeration(update.getRequestModeration());
+            sizeUpdate++;
+            log.debug("Request moderation update '{}'", oldEvent.getRequestModeration());
+        }
+        if (update.getStateAction() != null) {
+            oldEvent.setEventStatus(update.getStateAction());
+            sizeUpdate++;
+            log.debug("State update '{}'", oldEvent.getEventStatus());
+        }
+        if (update.getTitle() != null) {
+            oldEvent.setTitle(update.getTitle());
+            sizeUpdate++;
+            log.debug("Title update '{}'", oldEvent.getTitle());
+        }
+        Event eventAfterUpdate = null;
+        if (sizeUpdate > 0) eventAfterUpdate = eventRepository.save(oldEvent);
+        return eventAfterUpdate != null ? toFullDto(eventAfterUpdate) : null;
     }
 
     @Override
@@ -112,12 +173,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getAllEventFromPublic(String search, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable) {
+    public List<EventShortDto> getAllEventFromPublic(String search, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable, HttpServletRequest request) {
         return null;
     }
 
     @Override
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         return null;
     }
 
@@ -126,6 +187,7 @@ public class EventServiceImpl implements EventService {
             log.debug("User with id = '{}' not found", userId);
             throw new NotFoundException("User with id = '" + userId + "' not found!");
         }
+        log.debug("Check user exist - ok");
     }
 
     private void isExistsEvent(Long eventId) {
@@ -133,5 +195,32 @@ public class EventServiceImpl implements EventService {
             log.debug("Event with id = '{}' not found", eventId);
             throw new NotFoundException("Event with id = '" + eventId + "' not found");
         }
+        log.debug("Check event exist - ok");
+    }
+
+    private void isBeforeTwoHours(LocalDateTime eventDateStarted) {
+        final LocalDateTime twoHoursLater = LocalDateTime.now().plusHours(2);
+        if (eventDateStarted.isBefore(twoHoursLater)) {
+            log.debug("The event will start in less than 2 hours. Date start '{}'", eventDateStarted);
+            throw new TimeValidationException("Time start event cannot be after two hours started event");
+        }
+        log.debug("Time started event is check - ok");
+    }
+
+    private Event getEvenByInitiatorAndEventId(Long userId, Long eventId) {
+        return eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(
+                () -> new NotFoundException("Event with id = '" + eventId + "' and/or initiator with id = '" + userId + "' not found"));
+    }
+
+    private void isCategoryExists(Long catId) {
+        if (!categoryRepository.existsById(catId)) {
+            throw new NotFoundException("Category with id = '" + catId + "' not found");
+        }
+        log.debug("Check user exist - ok");
+    }
+
+    private Category getCategoryById(Long caId) {
+        return categoryRepository.findById(caId).orElseThrow(
+                () -> new NotFoundException("Category with id = '" + caId + "' not found"));
     }
 }

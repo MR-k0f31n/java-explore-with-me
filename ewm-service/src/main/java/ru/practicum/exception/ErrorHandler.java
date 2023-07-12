@@ -15,7 +15,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleNotFoundException(final NotFoundException exception) {
+    public ApiError handlerNotFoundException(final NotFoundException exception) {
         log.error("Error! Not Found, server status: '{}' text message: '{}'", HttpStatus.NOT_FOUND, exception.getMessage());
 
         return ApiError.builder()
@@ -27,7 +27,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleValidationException(final ValidationException exception) {
+    public ApiError handlerValidationException(final ValidationException exception) {
         log.error("Error! Validation fault, server status: '{}' text message: '{}'", HttpStatus.NOT_FOUND, exception.getMessage());
 
         return ApiError.builder()
@@ -39,7 +39,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleEmailConflictException(final EmailConflictException exception) {
+    public ApiError handlerEmailConflictException(final EmailConflictException exception) {
         log.error("Error! Email conflict, server status: '{}' text message: '{}'", HttpStatus.NOT_FOUND, exception.getMessage());
 
         return ApiError.builder()
@@ -51,12 +51,23 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleIncorrectParametersException(IncorrectParametersException exception) {
+    public ApiError handlerIncorrectParametersException(IncorrectParametersException exception) {
         log.error("Error! Bad request, server status: '{}' text message: '{}'", HttpStatus.BAD_REQUEST, exception.getMessage());
         return ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST.toString())
                 .message(exception.getMessage())
                 .reason("Incorrect parameters")
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError handlerTimeValidationException(TimeValidationException exception) {
+        log.error("Error! Bad request! server status: '{}', text message: '{}'", HttpStatus.FORBIDDEN, exception.getMessage());
+        return ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.toString())
+                .message(exception.getMessage())
+                .reason("Incorrect date or time")
                 .build();
     }
 }

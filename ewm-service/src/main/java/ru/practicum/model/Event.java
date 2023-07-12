@@ -45,7 +45,7 @@ public class Event {
     @Column(name = "participant_limit")
     private Integer participantLimit;
     @Column(name = "published_date")
-    private String publisherDate;
+    private LocalDateTime publisherDate;
     @Column(name = "request_moderation")
     private Boolean requestModeration;
     @Enumerated(EnumType.STRING)

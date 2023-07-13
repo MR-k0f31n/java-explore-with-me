@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatClient;
+import ru.practicum.dto.enums.RequestStatus;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.enums.EventStatus;
 import ru.practicum.dto.input.NewEventDto;
@@ -16,17 +17,18 @@ import ru.practicum.dto.input.UpdateEventUserRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.TimeValidationException;
 import ru.practicum.mapper.EventMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
-import ru.practicum.model.User;
+import ru.practicum.mapper.RequestMapper;
+import ru.practicum.model.*;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.RequestRepository;
 import ru.practicum.repository.UserRepository;
 import ru.practicum.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final StatClient statClient;
+    private final RequestRepository requestRepository;
 
     @Override
     public List<EventShortDto> getEventsByUserId(Long userId, Pageable pageable) {
@@ -157,13 +160,55 @@ public class EventServiceImpl implements EventService {
     public List<ParticipationRequestDto> getAllParticipationRequestsFromEventByOwner(Long userId, Long eventId) {
         isExistsUser(userId);
         isUserInitiatedEvent(userId, eventId);
-
-        return null;
+        final List<Request> requests = requestRepository.findAllByEventId(eventId);
+        log.debug("Number of requests found '{}'", requests.size());
+        return requests.stream().map(RequestMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult updateStatusRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest update) {
-        return null;
+        isExistsUser(userId);
+        final Event event = getEvenByInitiatorAndEventId(userId, eventId);
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0)
+            throw new ValidationException("This event does not require confirmation of requests");
+        final RequestStatus status = update.getStatus();
+
+        switch (status) {
+            case CONFIRMED:
+                if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
+                    throw new ValidationException("Participant limit is full");
+                CaseUpdatedStatus updatedStatusConfirmed = statusHandler(event, CaseUpdatedStatus.builder()
+                        .idsFromUpdateStatus(update.getRequestIds()).build(), RequestStatus.CONFIRMED);
+                List<Request> confirmedRequests = requestRepository.findAllById(updatedStatusConfirmed.getProcessedIds());
+                log.debug("Confirmed requests '{};", confirmedRequests.size());
+                List<Request> rejectedRequests = new ArrayList<>();
+                if (updatedStatusConfirmed.getIdsFromUpdateStatus().size() != 0) {
+                    List<Long> ids = updatedStatusConfirmed.getIdsFromUpdateStatus();
+                    int sizeIds = updatedStatusConfirmed.getIdsFromUpdateStatus().size();
+                    for (int i = 0; i < sizeIds; i++) {
+                        final Request request = getRequestOrThrow(eventId, updatedStatusConfirmed.(i), RequestStatus.PENDING);
+                        log.debug("Request received [{}]", request);
+                        request.setStatus(RequestStatus.REJECTED);
+                        log.debug("Status update '{}'", request.getStatus());
+                        requestRepository.save(request);
+                        log.debug("Request saved!");
+                    }
+                    rejectedRequests = requestRepository.findAllById(ids);
+                    log.debug("Reject requests '{}'", rejectedRequests.size());
+                }
+                log.debug("Reject requests '{}'", rejectedRequests.size());
+                return EventRequestStatusUpdateResult.builder()
+                        .confirmedRequests(confirmedRequests.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
+                        .rejectedRequests(rejectedRequests.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
+                        .build();
+            case REJECTED:
+                if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
+                    throw new ValidationException("Participant limit is full");
+                CaseUpdatedStatus updatedStatusReject = statusHandler(event, CaseUpdatedStatus.builder()
+                        .idsFromUpdateStatus(update.getRequestIds()).build(), RequestStatus.REJECTED);
+                return null;
+        }
     }
 
     @Override
@@ -184,6 +229,35 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         return null;
+    }
+
+    private CaseUpdatedStatus statusHandler (Event event, CaseUpdatedStatus caseUpdatedStatus, RequestStatus status) {
+        Long eventId = event.getId();
+        final List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
+        final int idsSize = caseUpdatedStatus.getIdsFromUpdateStatus().size();
+        final List<Long> processedIds = new ArrayList<>();
+        int freeRequest = event.getParticipantLimit() - event.getConfirmedRequests();
+        for (int i = 0; i < idsSize; i++) {
+            final Request request = getRequestOrThrow(eventId, ids.get(i), RequestStatus.PENDING);
+            if (freeRequest == 0) {
+                break;
+            }
+            log.debug("Request received [{}]", request);
+            request.setStatus(status);
+            log.debug("Status update '{}'", request.getStatus());
+            requestRepository.save(request);
+            log.debug("Request saved!");
+            Long confirmedId = request.getId();
+            processedIds.add(confirmedId);
+            ids.remove(i);
+            freeRequest--;
+        }
+        Integer confirmedRequestUpdate = event.getConfirmedRequests() + processedIds.size();
+        event.setConfirmedRequests(confirmedRequestUpdate);
+        eventRepository.save(event);
+        caseUpdatedStatus.setIdsFromUpdateStatus(ids);
+        caseUpdatedStatus.setProcessedIds(processedIds);
+        return caseUpdatedStatus;
     }
 
     private void isExistsUser(Long userId) {
@@ -228,10 +302,16 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("Category with id = '" + caId + "' not found"));
     }
 
-    private void isUserInitiatedEvent(Long userId, Long eventId){
+    private void isUserInitiatedEvent(Long userId, Long eventId) {
         if (!eventRepository.existsByInitiatorIdAndId(userId, eventId)) {
             throw new ValidationException("User did not create this event");
         }
         log.debug("Initiator check - ok");
+    }
+
+    private Request getRequestOrThrow(Long eventId, Long reqId, RequestStatus status) {
+        return requestRepository.findByEventIdAndIdAndStatus(eventId, reqId, status).orElseThrow(
+                () -> new NotFoundException("Request with id = '" + reqId + "' not found or with event id = '" + eventId + "' " +
+                        "or not found request on status '" + status + "'"));
     }
 }

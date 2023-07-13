@@ -3,7 +3,7 @@ package ru.practicum.service;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.input.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 

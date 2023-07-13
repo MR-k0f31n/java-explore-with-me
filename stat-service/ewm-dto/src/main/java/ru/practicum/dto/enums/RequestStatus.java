@@ -1,10 +1,12 @@
-package ru.practicum.dto.event.enums;
+package ru.practicum.dto.enums;
 
 /**
  * @author MR.k0F31N
  */
 
 public enum RequestStatus {
+    PENDING,
     CONFIRMED,
-    REJECTED
+    REJECTED,
+    CANCELED
 }

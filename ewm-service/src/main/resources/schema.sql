@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS events CASCADE;
 DROP TABLE IF EXISTS compilations CASCADE;
+DROP TABLE IF EXISTS compilations_to_event CASCADE;
+DROP TABLE If EXISTS requests CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -37,6 +39,17 @@ CREATE TABLE IF NOT EXISTS events
     views              BIGINT,
     CONSTRAINT fk_event_to_user FOREIGN KEY (initiator_id) REFERENCES users (id),
     CONSTRAINT fk_event_to_category FOREIGN KEY (category_id) REFERENCES categories (id)
+);
+
+CREATE TABLE IF NOT EXISTS requests
+(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    event_id        BIGINT                                  NOT NULL,
+    requester_id    BIGINT                                  NOT NULL,
+    create_date     TIMESTAMP WITHOUT TIME ZONE,
+    status          VARCHAR(20),
+    CONSTRAINT fk_requests_to_event FOREIGN KEY(event_id) REFERENCES events(id),
+    CONSTRAINT fk_requests_to_user FOREIGN KEY(requester_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS compilations

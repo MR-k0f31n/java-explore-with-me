@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.input.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 import ru.practicum.exception.IncorrectParametersException;

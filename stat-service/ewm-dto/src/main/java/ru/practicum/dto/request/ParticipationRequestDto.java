@@ -1,10 +1,10 @@
-package ru.practicum.dto.input;
+package ru.practicum.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import ru.practicum.dto.enums.RequestStatus;
 import ru.practicum.dto.location.Location;
+
+import java.time.LocalDateTime;
 
 /**
  * @author MR.k0F31N
@@ -14,10 +14,11 @@ import ru.practicum.dto.location.Location;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ParticipationRequestDto {
     private Long id;
     private Long event;
-    private Location created;
+    private LocalDateTime created;
     private Long requester;
-    private String status;
+    private RequestStatus status;
 }

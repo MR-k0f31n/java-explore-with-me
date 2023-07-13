@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.dto.event.enums.EventStatus;
+import ru.practicum.dto.enums.EventStatus;
 import ru.practicum.dto.location.Location;
 
 import javax.validation.constraints.Positive;

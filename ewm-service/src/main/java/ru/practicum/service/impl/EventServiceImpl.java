@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatClient;
 import ru.practicum.dto.event.*;
-import ru.practicum.dto.event.enums.EventStatus;
+import ru.practicum.dto.enums.EventStatus;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.input.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
 import ru.practicum.exception.NotFoundException;
@@ -149,11 +149,15 @@ public class EventServiceImpl implements EventService {
         }
         Event eventAfterUpdate = null;
         if (sizeUpdate > 0) eventAfterUpdate = eventRepository.save(oldEvent);
+        log.debug("Event update? if null no new data: [{}]", eventAfterUpdate);
         return eventAfterUpdate != null ? toFullDto(eventAfterUpdate) : null;
     }
 
     @Override
-    public List<ParticipationRequestDto> getAllParticipationRequestsFromEventByOwner(Long userId, Long EventId) {
+    public List<ParticipationRequestDto> getAllParticipationRequestsFromEventByOwner(Long userId, Long eventId) {
+        isExistsUser(userId);
+        isUserInitiatedEvent(userId, eventId);
+
         return null;
     }
 
@@ -222,5 +226,12 @@ public class EventServiceImpl implements EventService {
     private Category getCategoryById(Long caId) {
         return categoryRepository.findById(caId).orElseThrow(
                 () -> new NotFoundException("Category with id = '" + caId + "' not found"));
+    }
+
+    private void isUserInitiatedEvent(Long userId, Long eventId){
+        if (!eventRepository.existsByInitiatorIdAndId(userId, eventId)) {
+            throw new ValidationException("User did not create this event");
+        }
+        log.debug("Initiator check - ok");
     }
 }

@@ -32,7 +32,6 @@ public class NewEventDto {
     @Length(max = 7000, min = 20, message = "Description cannot be length min 20 max 7000")
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotBlank(message = "Event Date cannot be blank")
     private LocalDateTime eventDate;
     @NotNull(message = "Location cannot be null")
     private Location location;

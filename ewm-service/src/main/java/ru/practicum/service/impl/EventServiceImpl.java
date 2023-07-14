@@ -14,6 +14,7 @@ import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
+import ru.practicum.exception.IncorrectParametersException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.TimeValidationException;
 import ru.practicum.mapper.EventMapper;
@@ -187,7 +188,7 @@ public class EventServiceImpl implements EventService {
                     List<Long> ids = updatedStatusConfirmed.getIdsFromUpdateStatus();
                     int sizeIds = updatedStatusConfirmed.getIdsFromUpdateStatus().size();
                     for (int i = 0; i < sizeIds; i++) {
-                        final Request request = getRequestOrThrow(eventId, updatedStatusConfirmed.(i), RequestStatus.PENDING);
+                        final Request request = getRequestOrThrow(eventId, ids.get(i), RequestStatus.PENDING);
                         log.debug("Request received [{}]", request);
                         request.setStatus(RequestStatus.REJECTED);
                         log.debug("Status update '{}'", request.getStatus());
@@ -199,15 +200,27 @@ public class EventServiceImpl implements EventService {
                 }
                 log.debug("Reject requests '{}'", rejectedRequests.size());
                 return EventRequestStatusUpdateResult.builder()
-                        .confirmedRequests(confirmedRequests.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
-                        .rejectedRequests(rejectedRequests.stream().map(RequestMapper::toDto).collect(Collectors.toList()))
+                        .confirmedRequests(confirmedRequests
+                                .stream()
+                                .map(RequestMapper::toDto).collect(Collectors.toList()))
+                        .rejectedRequests(rejectedRequests
+                                .stream()
+                                .map(RequestMapper::toDto).collect(Collectors.toList()))
                         .build();
             case REJECTED:
                 if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
                     throw new ValidationException("Participant limit is full");
                 CaseUpdatedStatus updatedStatusReject = statusHandler(event, CaseUpdatedStatus.builder()
                         .idsFromUpdateStatus(update.getRequestIds()).build(), RequestStatus.REJECTED);
-                return null;
+                List<Request> rejectRequest = requestRepository.findAllById(updatedStatusReject.getProcessedIds());
+                log.debug("Reject requests '{}'", rejectRequest.size());
+                return EventRequestStatusUpdateResult.builder()
+                        .rejectedRequests(rejectRequest
+                                .stream()
+                                .map(RequestMapper::toDto).collect(Collectors.toList()))
+                        .build();
+            default:
+                throw new IncorrectParametersException("Incorrect status " + status);
         }
     }
 
@@ -231,7 +244,7 @@ public class EventServiceImpl implements EventService {
         return null;
     }
 
-    private CaseUpdatedStatus statusHandler (Event event, CaseUpdatedStatus caseUpdatedStatus, RequestStatus status) {
+    private CaseUpdatedStatus statusHandler(Event event, CaseUpdatedStatus caseUpdatedStatus, RequestStatus status) {
         Long eventId = event.getId();
         final List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
         final int idsSize = caseUpdatedStatus.getIdsFromUpdateStatus().size();

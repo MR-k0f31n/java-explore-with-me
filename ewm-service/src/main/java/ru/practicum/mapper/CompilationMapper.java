@@ -24,14 +24,14 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static Compilation toModel (NewCompilationDto compilationDto) {
+    public static Compilation toModel(NewCompilationDto compilationDto) {
         return Compilation.builder()
                 .pinned(compilationDto.getPinned())
                 .title(compilationDto.getTitle())
                 .build();
     }
 
-    public static Compilation toModel (UpdateCompilationDto update) {
+    public static Compilation toModel(UpdateCompilationDto update) {
         return Compilation.builder()
                 .id(update.getId())
                 .pinned(update.getPinned())

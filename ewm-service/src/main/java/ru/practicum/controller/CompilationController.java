@@ -53,8 +53,8 @@ public class CompilationController {
 
     @GetMapping("/compilations")
     public List<CompilationDto> getAll(@RequestParam(value = "pinned", required = false) boolean pinned,
-                                       @RequestParam(name = "from", defaultValue = "0")@Min(0) Integer from,
-                                       @RequestParam(name = "size", defaultValue = "10")@Min(1) Integer size) {
+                                       @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+                                       @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size) {
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         log.trace("Endpoint request: GET /compilations");
         return compilationService.getAll(pinned, pageable);

@@ -1,17 +1,18 @@
 package ru.practicum.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventRequestStatusUpdateResult;
+import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.input.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
+import ru.practicum.dto.request.ParticipationRequestDto;
 
-import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author MR.k0F31n

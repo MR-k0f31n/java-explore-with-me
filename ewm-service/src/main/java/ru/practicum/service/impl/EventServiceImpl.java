@@ -1,9 +1,7 @@
-
 package ru.practicum.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -12,15 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatClient;
+import ru.practicum.dto.enums.EventStatus;
 import ru.practicum.dto.enums.RequestStatus;
 import ru.practicum.dto.enums.StateAction;
-import ru.practicum.dto.event.*;
-import ru.practicum.dto.enums.EventStatus;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventRequestStatusUpdateResult;
+import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.input.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.statistic.EndpointHitDto;
 import ru.practicum.dto.statistic.ViewStatsDto;
 import ru.practicum.exception.IncorrectParametersException;
@@ -41,7 +41,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.mapper.EventMapper.toFullDto;
@@ -54,12 +53,12 @@ import static ru.practicum.mapper.EventMapper.toModel;
 @Slf4j
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final StatClient statClient;
     private final RequestRepository requestRepository;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<EventShortDto> getEventsByUserId(Long userId, Pageable pageable) {
@@ -391,7 +390,7 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("Event with id = '" + eventId + "' not found"));
         addStatistic(request);
         final ResponseEntity<Object> response = statClient
-                .getStatistics(event.getCreatedDate().toString(),LocalDateTime.now().toString(), List.of(request.getContextPath()), true);
+                .getStatistics(event.getCreatedDate().toString(), LocalDateTime.now().toString(), List.of(request.getContextPath()), true);
         final ObjectMapper mapper = new ObjectMapper();
         final List<ViewStatsDto> stats = mapper.convertValue(response.getBody(), new TypeReference<List<ViewStatsDto>>() {
         });

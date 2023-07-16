@@ -1,9 +1,7 @@
 package ru.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.expression.spel.ast.OpAnd;
 import ru.practicum.dto.enums.RequestStatus;
-import ru.practicum.model.Event;
 import ru.practicum.model.Request;
 
 import java.util.List;

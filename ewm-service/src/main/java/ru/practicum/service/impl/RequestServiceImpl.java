@@ -44,9 +44,11 @@ public class RequestServiceImpl implements RequestService {
         final Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id '" + eventId + "' not found"));
         if (event.getInitiator().getId().equals(userId)) throw new ValidatedException("Owner cannot be a member");
-        if (event.getParticipantLimit().equals(event.getConfirmedRequests())) throw new ValidatedException("Limit seat is full");
+        if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
+            throw new ValidatedException("Limit seat is full");
         if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) throw new ValidatedException("Event not published");
-        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) throw new ValidatedException("Cannot add duplicate request");
+        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId))
+            throw new ValidatedException("Cannot add duplicate request");
         final Request request = new Request();
         request.setCreated(LocalDateTime.now());
         request.setRequester(user);
@@ -56,7 +58,7 @@ public class RequestServiceImpl implements RequestService {
         final Request requestAfterSave = requestRepository.save(request);
         log.debug("Request after canceled = [{}]", requestAfterSave);
         int countRequestConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
-        if(event.getConfirmedRequests() != countRequestConfirmed) {
+        if (event.getConfirmedRequests() != countRequestConfirmed) {
             event.setConfirmedRequests(countRequestConfirmed);
             eventRepository.save(event);
             log.debug("Update confirmed request");
@@ -77,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancel(Long userId, Long requestId) {
         isUserExists(userId);
         final Request request = requestRepository.findByIdAndRequesterId(requestId, userId).orElseThrow(
-                ()->new NotFoundException(String
+                () -> new NotFoundException(String
                         .format("Request with id = '%d', with same requester id = '%d' not found", requestId, userId)));
         if (request.getStatus().equals(RequestStatus.CANCELED) || request.getStatus().equals(RequestStatus.REJECTED))
             throw new IncorrectParametersException("Request already canceled");
@@ -88,6 +90,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void isUserExists(Long userId) {
-        if (userRepository.existsById(userId)) throw new NotFoundException(String.format("User with id '%d' not found", userId));
+        if (userRepository.existsById(userId))
+            throw new NotFoundException(String.format("User with id '%d' not found", userId));
     }
 }

@@ -9,13 +9,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventRequestStatusUpdateResult;
+import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.input.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.input.NewEventDto;
-import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
 import ru.practicum.dto.input.UpdateEventUserRequest;
-import ru.practicum.exception.IncorrectParametersException;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author MR.k0F31n

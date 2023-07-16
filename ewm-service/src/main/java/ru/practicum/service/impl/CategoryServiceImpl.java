@@ -2,12 +2,13 @@ package ru.practicum.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.input.NewCategoryDto;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.exception.ValidationException;
+import ru.practicum.exception.ValidatedException;
 import ru.practicum.mapper.CategoryMapper;
 import ru.practicum.model.Category;
 import ru.practicum.repository.CategoryRepository;
@@ -50,7 +51,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto update(Long catId, NewCategoryDto categoryDto) {
         log.info("Task update category. Category id='{}', update='{}'", catId, categoryDto);
-        isNameCategoryExist(categoryDto.getName());
         final Category oldCategory = categoryRepository.findById(catId).orElseThrow(() ->
                 new NotFoundException("Category with id='" + catId + "' not found"));
         if (categoryDto.getName() != null) {
@@ -84,6 +84,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void isNameCategoryExist(String name) {
         if (categoryRepository.existsByNameIgnoreCase(name))
-            throw new ValidationException("Category name '" + name + "' is not unique");
+            throw new ValidatedException("Category name '" + name + "' is not unique");
     }
 }

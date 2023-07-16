@@ -19,4 +19,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     Optional<Request> findByEventIdAndIdAndStatus(Long eventId, Long id, RequestStatus status);
 
     int countByEventIdAndStatus(Long eventId, RequestStatus status);
+
+    Boolean existsByEventIdAndRequesterId(Long eventId, Long userId);
+
+    Optional<Request> findByIdAndRequesterId(Long id, Long requesterId);
+
+    List<Request> findAllByRequesterId(Long userId);
 }

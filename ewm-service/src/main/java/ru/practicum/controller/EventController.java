@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.*;
+import ru.practicum.dto.input.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.input.UpdateEventAdminRequest;
@@ -22,6 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author MR.k0F31n
@@ -103,9 +105,6 @@ public class EventController {
         log.trace("Endpoint request: GET /admin/events");
         log.debug("Param: search id user = '{}', search state events = '{}', search id categories = '{}', range start = '{}', " +
                 "range end = '{}', pageable from = '{}', pageable size = '{}'", users, states, categories, rangeStart, rangeEnd, from, size);
-        if (rangeStart.isAfter(rangeEnd)) {
-            throw new IncorrectParametersException("Range start before range end");
-        }
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         return eventService.getAllEventForParamFromAdmin(users, states, categories, rangeStart, rangeEnd, pageable);
     }
@@ -119,22 +118,22 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public List<EventShortDto> getAllEvents(@RequestParam(value = "text", required = false) String search,
+    public List<EventShortDto> getAllEvents(@RequestParam(required = false) String text,
                                             @RequestParam(required = false) List<Long> categories,
                                             @RequestParam(defaultValue = "false") Boolean paid,
                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-                                            @RequestParam(value = "sort", defaultValue = "event_date") String sortBy,
-                                            @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
-                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size,
+                                            @RequestParam(defaultValue = "EVENT_DATE") String sort,
+                                            @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size,
                                             HttpServletRequest request) {
         log.trace("Public endpoint request: GET /events");
         log.debug("Param: search by = '{}', id categories = '{}', paid = {}, start range = '{}', end range = '{}', " +
-                        "only available = {}, sort by = '{}', pageable from = '{}', pageable size = '{}'", search, categories, paid,
-                rangeStart, rangeEnd, onlyAvailable, sortBy, from, size);
-        final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, sortBy));
-        return eventService.getAllEventFromPublic(search, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable, request);
+                        "only available = {}, sort by = '{}', pageable from = '{}', pageable size = '{}'", text, categories, paid,
+                rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        final Pageable pageable = PageRequest.of(from / size, size);
+        return eventService.getAllEventFromPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, pageable, request);
     }
 
     @GetMapping("/events/{eventId}")

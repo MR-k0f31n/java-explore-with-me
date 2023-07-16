@@ -2,9 +2,11 @@ package ru.practicum.dto.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import ru.practicum.dto.enums.StateAction;
 import ru.practicum.dto.location.Location;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -27,9 +29,10 @@ public class UpdateEventAdminRequest {
     private LocalDateTime eventDate;
     private Location location;
     private Boolean paid;
+    @PositiveOrZero
     private Integer participantLimit;
     private Boolean requestModeration;
-    private String stateAction;
+    private StateAction stateAction;
     @Size(min = 3, max = 120)
     private String title;
 }

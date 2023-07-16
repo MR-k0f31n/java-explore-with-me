@@ -9,15 +9,15 @@ import java.util.List;
 /**
  * @author MR.k0F31N
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class NewCompilationDto {
-    private Boolean pinned;
-    @NotBlank
-    @Size(min = 1, max = 50)
-    private String title;
+public class UpdateCompilationDto {
+    private Long id;
     private List<Long> events;
+    private Boolean pinned;
+    @Size(max = 50)
+    private String title;
 }

@@ -22,6 +22,7 @@ import ru.practicum.service.EventService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -118,7 +119,7 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public List<EventShortDto> getAllEvents(@RequestParam(required = false) String text,
+    public List<EventShortDto> getAllEvents(@RequestParam(required = false) @NotBlank String text,
                                             @RequestParam(required = false) List<Long> categories,
                                             @RequestParam(defaultValue = "false") Boolean paid,
                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,

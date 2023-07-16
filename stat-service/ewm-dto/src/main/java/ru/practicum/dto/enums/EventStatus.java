@@ -6,5 +6,7 @@ package ru.practicum.dto.enums;
 public enum EventStatus {
     PENDING,
     PUBLISHED,
-    CANCELED
+    CANCELED,
+    SEND_TO_REVIEW,
+    CANCEL_REVIEW
 }

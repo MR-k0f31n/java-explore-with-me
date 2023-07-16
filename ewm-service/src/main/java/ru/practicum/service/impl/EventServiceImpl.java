@@ -199,7 +199,10 @@ public class EventServiceImpl implements EventService {
                     List<Long> ids = updatedStatusConfirmed.getIdsFromUpdateStatus();
                     int sizeIds = updatedStatusConfirmed.getIdsFromUpdateStatus().size();
                     for (int i = 0; i < sizeIds; i++) {
-                        final Request request = getRequestOrThrow(eventId, ids.get(i), RequestStatus.PENDING);
+                        final Request request = getRequestOrThrow(eventId, ids.get(i));
+                        if (!request.getStatus().equals(RequestStatus.PENDING)) {
+                            break;
+                        }
                         log.debug("Request received [{}]", request.toString());
                         request.setStatus(RequestStatus.REJECTED);
                         log.debug("Status update '{}'", request.getStatus());
@@ -389,15 +392,7 @@ public class EventServiceImpl implements EventService {
         final Event event = eventRepository.findByIdAndEventStatus(eventId, EventStatus.PUBLISHED).orElseThrow(
                 () -> new NotFoundException("Event with id = '" + eventId + "' not found"));
         addStatistic(request);
-        final ResponseEntity<Object> response = statClient
-                .getStatistics(event.getCreatedDate().toString(), LocalDateTime.now().toString(), List.of(request.getContextPath()), true);
-        final ObjectMapper mapper = new ObjectMapper();
-        final List<ViewStatsDto> stats = mapper.convertValue(response.getBody(), new TypeReference<List<ViewStatsDto>>() {
-        });
-        if (!stats.isEmpty()) {
-            event.setViews(stats.get(0).getHits().intValue());
-            eventRepository.save(event);
-        }
+        setViewsOfEvents(List.of(event));
         return toFullDto(event);
     }
 
@@ -408,7 +403,7 @@ public class EventServiceImpl implements EventService {
         final List<Long> processedIds = new ArrayList<>();
         int freeRequest = event.getParticipantLimit() - event.getConfirmedRequests();
         for (int i = 0; i < idsSize; i++) {
-            final Request request = getRequestOrThrow(eventId, ids.get(i), RequestStatus.PENDING);
+            final Request request = getRequestOrThrow(eventId, ids.get(i));
             if (freeRequest == 0) {
                 break;
             }
@@ -463,10 +458,9 @@ public class EventServiceImpl implements EventService {
         log.debug("Initiator check - ok");
     }
 
-    private Request getRequestOrThrow(Long eventId, Long reqId, RequestStatus status) {
-        return requestRepository.findByEventIdAndIdAndStatus(eventId, reqId, status).orElseThrow(
-                () -> new NotFoundException("Request with id = '" + reqId + "' not found or with event id = '" + eventId + "' " +
-                        "or not found request on status '" + status + "'"));
+    private Request getRequestOrThrow(Long eventId, Long reqId) {
+        return requestRepository.findByEventIdAndId(eventId, reqId).orElseThrow(
+                () -> new NotFoundException("Request with id = '" + reqId + "' not found or with event id = '" + eventId + "'"));
     }
 
     private void addStatistic(HttpServletRequest request) {

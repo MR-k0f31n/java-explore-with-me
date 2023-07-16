@@ -3,6 +3,7 @@ package ru.practicum.dto.input;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import ru.practicum.dto.location.Location;
 
 import javax.validation.constraints.NotBlank;
@@ -29,18 +30,17 @@ public class NewEventDto {
     @NotNull(message = "Id category cannot be null")
     @Positive(message = "Id category can be only positive")
     private Long category;
+    @NotBlank
     @Length(max = 7000, min = 20, message = "Description cannot be length min 20 max 7000")
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull(message = "Location cannot be null")
     private Location location;
-    @NotNull(message = "Paid cannot be null")
-    private Boolean paid;
+    private Boolean paid = false;
     @PositiveOrZero(message = "Participant Limit can be only zero(unlimited) or positive")
-    private Integer participantLimit;
-    @NotNull(message = "Request Moderation cannot be null")
-    private Boolean requestModeration;
+    private Integer participantLimit = 0;
+    private Boolean requestModeration = true;
     @NotNull(message = "Title cannot be null")
     @Length(min = 3, max = 120, message = "Title cannot be length min 3 max 120")
     private String title;

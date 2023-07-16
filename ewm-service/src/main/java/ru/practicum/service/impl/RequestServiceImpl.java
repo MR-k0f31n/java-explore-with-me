@@ -44,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
         final Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id '" + eventId + "' not found"));
         if (event.getInitiator().getId().equals(userId)) throw new ValidatedException("Owner cannot be a member");
-        if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
+        if (!event.getParticipantLimit().equals(0) && event.getParticipantLimit() <= event.getConfirmedRequests())
             throw new ValidatedException("Limit seat is full");
         if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) throw new ValidatedException("Event not published");
         if (requestRepository.existsByEventIdAndRequesterId(eventId, userId))
@@ -53,7 +53,7 @@ public class RequestServiceImpl implements RequestService {
         request.setCreated(LocalDateTime.now());
         request.setRequester(user);
         request.setEvent(event);
-        if (event.getRequestModeration()) request.setStatus(RequestStatus.PENDING);
+        if (!event.getRequestModeration()) request.setStatus(RequestStatus.PENDING);
         else request.setStatus(RequestStatus.CONFIRMED);
         final Request requestAfterSave = requestRepository.save(request);
         log.debug("Request after canceled = [{}]", requestAfterSave);
@@ -90,7 +90,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void isUserExists(Long userId) {
-        if (userRepository.existsById(userId))
+        if (!userRepository.existsById(userId))
             throw new NotFoundException(String.format("User with id '%d' not found", userId));
     }
 }

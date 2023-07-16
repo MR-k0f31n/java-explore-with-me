@@ -9,6 +9,7 @@ import ru.practicum.dto.location.Location;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -17,11 +18,11 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class UpdateEventUserRequest {
-    @Length(min = 20, max = 2000, message = "update annotation. length text min = 20 max = 2000")
+    @Size(min = 20, max = 2000, message = "update annotation. length text min = 20 max = 2000")
     private String annotation;
     @Positive
     private Long category;
-    @Length(min = 20, max = 7000, message = "update description. length text min = 20 max = 7000")
+    @Size(min = 20, max = 7000, message = "update description. length text min = 20 max = 7000")
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
@@ -30,6 +31,6 @@ public class UpdateEventUserRequest {
     private Integer participantLimit;
     private Boolean requestModeration;
     private EventStatus stateAction;
-    @Length(min = 3, max = 120, message = "update title. length text min = 3 max = 120")
+    @Size(min = 3, max = 120, message = "update title. length text min = 3 max = 120")
     private String title;
 }

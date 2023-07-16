@@ -64,11 +64,11 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handlerTimeValidationException(TimeValidationException exception) {
-        log.error("Error! Bad request! server status: '{}', text message: '{}'", HttpStatus.FORBIDDEN, exception.getMessage());
+        log.error("Error! Bad request! server status: '{}', text message: '{}'", HttpStatus.BAD_REQUEST, exception.getMessage());
         return ApiError.builder()
-                .status(HttpStatus.FORBIDDEN.toString())
+                .status(HttpStatus.BAD_REQUEST.toString())
                 .message(exception.getMessage())
                 .reason("Incorrect date or time")
                 .build();

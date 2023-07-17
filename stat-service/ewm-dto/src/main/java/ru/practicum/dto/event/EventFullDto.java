@@ -7,35 +7,38 @@ import ru.practicum.dto.enums.EventStatus;
 import ru.practicum.dto.location.Location;
 import ru.practicum.dto.user.UserShortDto;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
  * @author MR.k0F31N
  */
 
+@Value
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @Builder
 public class EventFullDto {
-    private Long id;
-    private String annotation;
-    private CategoryDto category;
-    private Integer confirmedRequests;
+    Long id;
+    String annotation;
+    CategoryDto category;
+    Integer confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdOn;
-    private String description;
+    @NotNull
+    LocalDateTime createdOn;
+    String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime eventDate;
-    private UserShortDto initiator;
-    private Location location;
-    private Boolean paid;
-    private Integer participantLimit;
+    LocalDateTime eventDate;
+    UserShortDto initiator;
+    Location location;
+    Boolean paid;
+    Integer participantLimit;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime publishedOn;
-    private Boolean requestModeration;
-    private EventStatus state;
-    private String title;
-    private Integer views;
+    LocalDateTime publishedOn;
+    Boolean requestModeration;
+    EventStatus state;
+    String title;
+    Integer views;
 }

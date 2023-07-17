@@ -22,7 +22,6 @@ import ru.practicum.service.EventService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -68,8 +67,8 @@ public class EventController {
 
     @PatchMapping("/users/{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto updateEventByOwner(@PathVariable(value = "userId") @Min(1) Long userId,
-                                           @PathVariable(value = "eventId") @Min(1) Long eventId,
+    public EventFullDto updateEventByOwner(@PathVariable(value = "userId") @Min(0) Long userId,
+                                           @PathVariable(value = "eventId") @Min(0) Long eventId,
                                            @Valid @RequestBody UpdateEventUserRequest inputUpdate) {
         log.trace("Endpoint request: PATCH /users/{userId}/events/{eventId}");
         log.debug("Param: user id = '{}', event id = '{}', request body = '{}'", userId, eventId, inputUpdate);
@@ -119,7 +118,7 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public List<EventShortDto> getAllEvents(@RequestParam(required = false) @NotBlank String text,
+    public List<EventShortDto> getAllEvents(@RequestParam(value = "text", defaultValue = "") String text,
                                             @RequestParam(required = false) List<Long> categories,
                                             @RequestParam(defaultValue = "false") Boolean paid,
                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,

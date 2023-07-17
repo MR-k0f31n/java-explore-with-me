@@ -3,7 +3,6 @@ package ru.practicum.dto.input;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import ru.practicum.dto.location.Location;
 
 import javax.validation.constraints.NotBlank;

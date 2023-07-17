@@ -53,7 +53,6 @@ import static ru.practicum.mapper.EventMapper.toModel;
 @Slf4j
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -71,6 +70,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto createNewEvent(Long userId, NewEventDto eventDto) {
+        final LocalDateTime createdOn = LocalDateTime.now();
         final User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id = '" + userId + "' not found!"));
         log.debug("User received");
@@ -85,7 +85,7 @@ public class EventServiceImpl implements EventService {
         log.debug("Event set initiator: [{}]", user.toString());
         event.setEventStatus(EventStatus.PENDING);
         log.debug("Event set status '{}'", EventStatus.PENDING);
-        event.setCreatedDate(LocalDateTime.now());
+        event.setCreatedDate(createdOn);
         log.debug("Event set created date '{}'", event.getCreatedDate().toString());
         event.setConfirmedRequests(0);
         event.setViews(0);
@@ -153,9 +153,18 @@ public class EventServiceImpl implements EventService {
             log.debug("Request moderation update '{}'", oldEvent.getRequestModeration());
         }
         if (update.getStateAction() != null) {
-            oldEvent.setEventStatus(update.getStateAction());
-            sizeUpdate++;
-            log.debug("State update '{}'", oldEvent.getEventStatus());
+            switch (update.getStateAction()) {
+                case SEND_TO_REVIEW:
+                    oldEvent.setEventStatus(EventStatus.PENDING);
+                    sizeUpdate++;
+                    log.debug("State update '{}'", oldEvent.getEventStatus());
+                    break;
+                case CANCEL_REVIEW:
+                    oldEvent.setEventStatus(EventStatus.CANCELED);
+                    sizeUpdate++;
+                    log.debug("State update '{}'", oldEvent.getEventStatus());
+                    break;
+            }
         }
         if (update.getTitle() != null) {
             oldEvent.setTitle(update.getTitle());
@@ -190,9 +199,9 @@ public class EventServiceImpl implements EventService {
             case CONFIRMED:
                 if (event.getParticipantLimit().equals(event.getConfirmedRequests()))
                     throw new ValidatedException("Participant limit is full");
-                CaseUpdatedStatus updatedStatusConfirmed = statusHandler(event, CaseUpdatedStatus.builder()
+                final CaseUpdatedStatus updatedStatusConfirmed = statusHandler(event, CaseUpdatedStatus.builder()
                         .idsFromUpdateStatus(update.getRequestIds()).build(), RequestStatus.CONFIRMED);
-                List<Request> confirmedRequests = requestRepository.findAllById(updatedStatusConfirmed.getProcessedIds());
+                final List<Request> confirmedRequests = requestRepository.findAllById(updatedStatusConfirmed.getProcessedIds());
                 log.debug("Confirmed requests '{};", confirmedRequests.size());
                 List<Request> rejectedRequests = new ArrayList<>();
                 if (updatedStatusConfirmed.getIdsFromUpdateStatus().size() != 0) {
@@ -281,26 +290,24 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventByEventIdFromAdmin(Long eventId, UpdateEventAdminRequest update) {
         final Event oldEvent = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id = '" + eventId + "' not found"));
-        if (update.getStateAction() != null) {
-            if (!oldEvent.getEventStatus().equals(EventStatus.PENDING) && update.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
-                throw new ValidatedException("Event state is not Pending");
-            }
-            if (!oldEvent.getEventStatus().equals(EventStatus.PUBLISHED) && update.getStateAction().equals(StateAction.REJECT_EVENT)) {
-                throw new ValidatedException("Event cannot update, event state is Published");
-            }
+        if (oldEvent.getEventStatus().equals(EventStatus.PUBLISHED) || oldEvent.getEventStatus().equals(EventStatus.CANCELED)) {
+            throw new ValidatedException("Only pending event can be changed");
         }
         //эти апдейты можно было сделать и красивее но времени в обрез!
         int countUpdate = 0;
-        if (update.getAnnotation() != null && update.getAnnotation().isBlank()) {
-            oldEvent.setAnnotation(update.getAnnotation());
-            countUpdate = 1;
+        if (update.getAnnotation() != null && !update.getAnnotation().isBlank()) {
+            if (update.getAnnotation().length() < 20 || update.getAnnotation().length() > 2000) {
+                throw new IncorrectParametersException("incorrect length of the annotation parameter");
+            } else {
+                oldEvent.setAnnotation(update.getAnnotation());
+            }
         }
         if (update.getCategory() != null) {
             final Category category = getCategoryById(update.getCategory());
             oldEvent.setCategory(category);
             countUpdate = 1;
         }
-        if (update.getDescription() != null && update.getDescription().isEmpty()) {
+        if (update.getDescription() != null && !update.getDescription().isEmpty()) {
             oldEvent.setDescription(update.getDescription());
             countUpdate = 1;
         }
@@ -317,7 +324,7 @@ public class EventServiceImpl implements EventService {
             oldEvent.setPaid(update.getPaid());
             countUpdate = 1;
         }
-        if (update.getParticipantLimit() != null && update.getParticipantLimit() >= 0) {
+        if (update.getParticipantLimit() != null) {
             oldEvent.setParticipantLimit(update.getParticipantLimit());
             countUpdate = 1;
         }
@@ -334,7 +341,7 @@ public class EventServiceImpl implements EventService {
                 countUpdate = 1;
             }
         }
-        if (update.getTitle() != null && update.getTitle().isBlank()) {
+        if (update.getTitle() != null && !update.getTitle().isBlank()) {
             oldEvent.setTitle(update.getTitle());
             countUpdate = 1;
         }
@@ -347,6 +354,12 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getAllEventFromPublic(String text, List<Long> categories, Boolean paid,
                                                      LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                      Boolean onlyAvailable, String sort, Pageable pageable, HttpServletRequest request) {
+        if (rangeEnd != null && rangeStart != null) {
+            if (rangeEnd.isBefore(rangeStart)) {
+                throw new IncorrectParametersException("End time before start time");
+            }
+        }
+
         addStatistic(request);
         Specification<Event> specification = Specification.where(null);
 
@@ -494,7 +507,7 @@ public class EventServiceImpl implements EventService {
                     .orElse(null);
 
             Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
-            event.setViews(views.intValue());
+            event.setViews(views.intValue() + 1);
         }
         eventRepository.saveAll(events);
     }

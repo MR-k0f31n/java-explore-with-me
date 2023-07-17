@@ -43,17 +43,18 @@ public class RequestServiceImpl implements RequestService {
                 () -> new NotFoundException("User with id = '" + userId + "' not found"));
         final Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id '" + eventId + "' not found"));
+        final LocalDateTime createdOn = LocalDateTime.now();
         if (event.getInitiator().getId().equals(userId)) throw new ValidatedException("Owner cannot be a member");
-        if (!event.getParticipantLimit().equals(0) && event.getParticipantLimit() <= event.getConfirmedRequests())
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED))
             throw new ValidatedException("Limit seat is full");
         if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) throw new ValidatedException("Event not published");
         if (requestRepository.existsByEventIdAndRequesterId(eventId, userId))
             throw new ValidatedException("Cannot add duplicate request");
         final Request request = new Request();
-        request.setCreated(LocalDateTime.now());
+        request.setCreated(createdOn);
         request.setRequester(user);
         request.setEvent(event);
-        if (!event.getRequestModeration()) request.setStatus(RequestStatus.PENDING);
+        if (event.getRequestModeration()) request.setStatus(RequestStatus.PENDING);
         else request.setStatus(RequestStatus.CONFIRMED);
         final Request requestAfterSave = requestRepository.save(request);
         log.debug("Request after canceled = [{}]", requestAfterSave);
@@ -62,6 +63,9 @@ public class RequestServiceImpl implements RequestService {
             event.setConfirmedRequests(countRequestConfirmed);
             eventRepository.save(event);
             log.debug("Update confirmed request");
+        }
+        if (event.getParticipantLimit() == 0) {
+            request.setStatus(RequestStatus.CONFIRMED);
         }
         return toDto(request);
     }

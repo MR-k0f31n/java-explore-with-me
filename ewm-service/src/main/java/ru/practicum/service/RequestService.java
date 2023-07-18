@@ -9,7 +9,7 @@ import java.util.List;
  */
 
 public interface RequestService {
-    ParticipationRequestDto created(Long userId, Long eventId);
+    ParticipationRequestDto createdNewRequest(Long userId, Long eventId);
 
     List<ParticipationRequestDto> getAllRequests(Long userId);
 

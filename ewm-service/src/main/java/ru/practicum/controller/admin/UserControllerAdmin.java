@@ -1,4 +1,4 @@
-package ru.practicum.controller;
+package ru.practicum.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,11 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class UserController {
+@RequestMapping("/admin/users")
+public class UserControllerAdmin {
     private final UserService userService;
 
-    @GetMapping("/admin/users")
+    @GetMapping
     public List<UserDto> getUsersInfoByIds(@RequestParam(value = "ids", required = false) List<Long> ids,
                                            @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
@@ -36,7 +37,7 @@ public class UserController {
         return userService.findUserById(ids, pageable);
     }
 
-    @PostMapping("/admin/users")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto created(@Valid @RequestBody NewUserDto input) {
         log.trace("Endpoint request: POST admin/users");
@@ -44,7 +45,7 @@ public class UserController {
         return userService.created(input);
     }
 
-    @DeleteMapping("/admin/users/{userId}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value = "userId") @Min(1) Long userId) {
         log.trace("Endpoint request: DELETE admin/users");

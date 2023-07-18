@@ -1,4 +1,4 @@
-package ru.practicum.model;
+package ru.practicum.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class CaseUpdatedStatus {
+public class CaseUpdatedStatusDto {
     private List<Long> idsFromUpdateStatus;
     private List<Long> processedIds;
 }

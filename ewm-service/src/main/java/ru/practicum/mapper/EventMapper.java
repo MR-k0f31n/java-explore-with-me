@@ -5,6 +5,9 @@ import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.input.NewEventDto;
 import ru.practicum.model.Event;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * @author MR.k0F31n
@@ -58,5 +61,15 @@ public class EventMapper {
                 .title(event.getTitle())
                 .views(event.getViews())
                 .build();
+    }
+
+    public static List<EventShortDto> toShortDtoList(Iterable<Event> events) {
+        List<EventShortDto> result = new ArrayList<>();
+        if (events != null) {
+            for (Event event : events) {
+                result.add(toShortDto(event));
+            }
+        }
+        return result;
     }
 }

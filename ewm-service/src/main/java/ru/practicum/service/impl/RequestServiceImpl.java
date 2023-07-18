@@ -38,24 +38,31 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public ParticipationRequestDto created(Long userId, Long eventId) {
+    public ParticipationRequestDto createdNewRequest(Long userId, Long eventId) {
         final User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id = '" + userId + "' not found"));
         final Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id '" + eventId + "' not found"));
         final LocalDateTime createdOn = LocalDateTime.now();
-        if (event.getInitiator().getId().equals(userId)) throw new ValidatedException("Owner cannot be a member");
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED))
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ValidatedException("Owner cannot be a member");
+        }
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
             throw new ValidatedException("Limit seat is full");
-        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) throw new ValidatedException("Event not published");
-        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId))
+        }
+        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
+            throw new ValidatedException("Event not published");
+        }
+        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) {
             throw new ValidatedException("Cannot add duplicate request");
+        }
         final Request request = new Request();
         request.setCreated(createdOn);
         request.setRequester(user);
         request.setEvent(event);
-        if (event.getRequestModeration()) request.setStatus(RequestStatus.PENDING);
-        else request.setStatus(RequestStatus.CONFIRMED);
+        if (event.getRequestModeration()) {
+            request.setStatus(RequestStatus.PENDING);
+        } else request.setStatus(RequestStatus.CONFIRMED);
         final Request requestAfterSave = requestRepository.save(request);
         log.debug("Request after canceled = [{}]", requestAfterSave);
         int countRequestConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
@@ -85,8 +92,9 @@ public class RequestServiceImpl implements RequestService {
         final Request request = requestRepository.findByIdAndRequesterId(requestId, userId).orElseThrow(
                 () -> new NotFoundException(String
                         .format("Request with id = '%d', with same requester id = '%d' not found", requestId, userId)));
-        if (request.getStatus().equals(RequestStatus.CANCELED) || request.getStatus().equals(RequestStatus.REJECTED))
+        if (request.getStatus().equals(RequestStatus.CANCELED) || request.getStatus().equals(RequestStatus.REJECTED)) {
             throw new IncorrectParametersException("Request already canceled");
+        }
         request.setStatus(RequestStatus.CANCELED);
         final Request requestAfterSave = requestRepository.save(request);
         log.debug("Request after canceled = [{}]", requestAfterSave);
@@ -94,7 +102,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void isUserExists(Long userId) {
-        if (!userRepository.existsById(userId))
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id '%d' not found", userId));
+        }
     }
 }

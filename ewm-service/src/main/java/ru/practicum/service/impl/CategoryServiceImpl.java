@@ -77,12 +77,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void isCategoryExistById(Long catId) {
-        if (!categoryRepository.existsById(catId))
+        if (!categoryRepository.existsById(catId)) {
             throw new NotFoundException("Category with id='" + catId + "' not found");
+        }
     }
 
     private void isNameCategoryExist(String name) {
-        if (categoryRepository.existsByNameIgnoreCase(name))
+        if (categoryRepository.existsByNameIgnoreCase(name)) {
             throw new ValidatedException("Category name '" + name + "' is not unique");
+        }
     }
 }

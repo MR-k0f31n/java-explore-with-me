@@ -40,7 +40,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto create(NewCompilationDto compilationDto) {
         final Compilation compilation = toModel(compilationDto);
-        if (compilation.getPinned() == null) compilation.setPinned(false);
+        if (compilation.getPinned() == null) {
+            compilation.setPinned(false);
+        }
         if (compilationDto.getEvents() != null) {
             final List<Event> getEvent = eventRepository.findAllById(compilationDto.getEvents());
             compilation.setEvents(getEvent);

@@ -5,7 +5,7 @@ import ru.practicum.dto.input.NewCompilationDto;
 import ru.practicum.dto.input.UpdateCompilationDto;
 import ru.practicum.model.Compilation;
 
-import java.util.stream.Collectors;
+import static ru.practicum.mapper.EventMapper.toShortDtoList;
 
 /**
  * @author MR.k0F31N
@@ -15,10 +15,7 @@ public class CompilationMapper {
     public static CompilationDto toDto(Compilation compilation) {
         return CompilationDto.builder()
                 .id(compilation.getId())
-                .events(compilation.getEvents()
-                        .stream()
-                        .map(EventMapper::toShortDto)
-                        .collect(Collectors.toList()))
+                .events(toShortDtoList(compilation.getEvents()))
                 .pinned(compilation.getPinned())
                 .title(compilation.getTitle())
                 .build();

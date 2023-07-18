@@ -9,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.dto.input.NewCategoryDto;
 import ru.practicum.service.CategoryService;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
@@ -23,35 +21,11 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class CategoryController {
+@RequestMapping("/categories")
+public class CategoryControllerPublic {
     private final CategoryService categoryService;
 
-    @PostMapping("/admin/categories")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto created(@Valid @RequestBody NewCategoryDto categoryDto) {
-        log.trace("Endpoint request: POST admin/categories");
-        log.debug("Param: input body '{}'", categoryDto);
-        return categoryService.created(categoryDto);
-    }
-
-    @DeleteMapping("/admin/categories/{catId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable(value = "catId") @Min(1) Long catId) {
-        log.trace("Endpoint request: DELETE admin/categories/{catId}");
-        log.debug("Param: Path variable '{}'", catId);
-        categoryService.delete(catId);
-    }
-
-    @PatchMapping("/admin/categories/{catId}")
-    @ResponseStatus(HttpStatus.OK)
-    public CategoryDto update(@PathVariable(value = "catId") @Min(1) Long catId,
-                              @Valid @RequestBody NewCategoryDto categoryDto) {
-        log.trace("Endpoint request: PATCH admin/categories/{catId}");
-        log.debug("Param: Path variable '{}', Param: input body '{}'", catId, categoryDto);
-        return categoryService.update(catId, categoryDto);
-    }
-
-    @GetMapping("/categories")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CategoryDto> getAll(@RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                     @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
@@ -61,7 +35,7 @@ public class CategoryController {
         return categoryService.getAll(pageable);
     }
 
-    @GetMapping("/categories/{catId}")
+    @GetMapping("/{catId}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryDto getById(@PathVariable(value = "catId") @Min(1) Long catId) {
         log.trace("Endpoint request: GET /categories/{catId}");

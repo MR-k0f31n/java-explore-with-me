@@ -1,4 +1,4 @@
-package ru.practicum.controller;
+package ru.practicum.controller.users;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,26 +20,27 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class RequestController {
+@RequestMapping("users/{userId}/requests")
+public class RequestControllerUsers {
     private final RequestService requestService;
 
-    @PostMapping("users/{userId}/requests")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createNewRequest(@PathVariable(value = "userId") @Min(0) Long userId,
                                                     @Valid @RequestParam(name = "eventId") Long eventId) {
         log.trace("Endpoint request: POST users/{userId}/requests");
         log.debug("Param: user id '{}', event id '{}'", userId, eventId);
-        return requestService.created(userId, eventId);
+        return requestService.createdNewRequest(userId, eventId);
     }
 
-    @GetMapping("/users/{userId}/requests")
+    @GetMapping
     public List<ParticipationRequestDto> getAllRequests(@PathVariable(value = "userId") @Min(0) Long userId) {
         log.trace("Endpoint request: GET users/{userId}/requests");
         log.debug("Param: user id '{}'", userId);
         return requestService.getAllRequests(userId);
     }
 
-    @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
+    @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(HttpStatus.OK)
     public ParticipationRequestDto canceledRequest(@PathVariable(value = "userId") @Min(0) Long userId,
                                                    @PathVariable(value = "requestId") @Min(0) Long requestId) {

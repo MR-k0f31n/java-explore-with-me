@@ -9,17 +9,17 @@ import java.time.LocalDateTime;
 /**
  * @author MR.k0F31N
  */
-
+@Value
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @Builder
 public class ParticipationRequestDto {
-    private Long id;
-    private Long event;
+    Long id;
+    Long event;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime created;
-    private Long requester;
-    private RequestStatus status;
+    LocalDateTime created;
+    Long requester;
+    RequestStatus status;
 }

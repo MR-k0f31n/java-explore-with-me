@@ -31,13 +31,11 @@ public class ErrorHandler {
     public ApiError handlerValidatedException(final ValidatedException exception) {
         log.error("Error! Validation fault, server status: '{}' text message: '{}'", HttpStatus.CONFLICT, exception.getMessage());
 
-        ApiError apiError = ApiError.builder()
+        return ApiError.builder()
                 .status(HttpStatus.CONFLICT.toString())
                 .message(exception.getMessage())
                 .reason("Incorrectly request.")
                 .build();
-
-        return apiError;
     }
 
     @ExceptionHandler

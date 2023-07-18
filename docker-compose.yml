@@ -36,11 +36,9 @@ services:
   ewm-db:
     image: postgres:14-alpine
     container_name: ewmmaindb
-    volumes:
-      - /var/lib/postgresql/data/
     ports:
       - "6452:5432"
-    entrypoint:
+    environment:
       - POSTGRES_DB=ewmmaindb
       - POSTGRES_USER=explorer
-      - POSTGRES_PASSWORD=imgroot
+      - POSTGRES_PASSWORD=iamgroot

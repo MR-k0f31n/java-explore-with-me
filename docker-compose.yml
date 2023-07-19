@@ -27,20 +27,19 @@ services:
     container_name: ewm-service
     ports:
       - "8080:8080"
-#    depends_on:
-#      - ewm-db
-#      - stats-server
-#    entrypoint:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm_db
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+      - STAT_SERVER_URL=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmmaindb
 
-#  ewm-db:
-#    image: postgres:14-alpine
-#    container_name: ewm_db
-#    volumes:
-#      - /var/lib/postgresql/data/
-#    ports:
-#      - "6451:5432"
-#    entrypoint:
-#      - POSTGRES_DB=ewm_db
-#      - POSTGRES_USER=explorer
-#      - POSTGRES_PASSWORD=imgroot
+  ewm-db:
+    image: postgres:14-alpine
+    container_name: ewmmaindb
+    ports:
+      - "6452:5432"
+    environment:
+      - POSTGRES_DB=ewmmaindb
+      - POSTGRES_USER=explorer
+      - POSTGRES_PASSWORD=iamgroot

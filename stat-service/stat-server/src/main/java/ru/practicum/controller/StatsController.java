@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.EndpointHitDto;
-import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.dto.statistic.EndpointHitDto;
+import ru.practicum.dto.statistic.ViewStatsDto;
 import ru.practicum.service.StatService;
 
 import javax.validation.Valid;

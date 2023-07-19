@@ -1,50 +1,48 @@
-package ru.practicum.model;
+package ru.practicum.dto.statistic;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
  * @author MR.k0F31n
  */
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "stats")
-public class EndpointHit {
+public class EndpointHitDto {
     /**
      * Идентификатор записи
      */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      * Идентификатор сервиса для которого записывается информация
      */
-    @Column(nullable = false)
+    @NotEmpty(message = "Name app is null")
     private String app;
 
     /**
      * URI для которого был осуществлен запрос
      */
-    @Column(nullable = false)
+    @NotEmpty(message = "uri is null")
     private String uri;
 
     /**
      * IP-адрес пользователя, осуществившего запрос
      */
-    @Column(nullable = false)
+    @NotEmpty(message = "IP is null")
     private String ip;
 
     /**
      * Дата и время, когда был совершен запрос к эндпоинту (в формате "yyyy-MM-dd HH:mm:ss")
      */
-    @Column(name = "created", nullable = false)
-    private LocalDateTime createdDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull(message = "Timestamp is null")
+    private LocalDateTime timestamp;
 }

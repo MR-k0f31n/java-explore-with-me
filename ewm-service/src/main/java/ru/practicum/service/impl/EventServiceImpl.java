@@ -230,7 +230,7 @@ public class EventServiceImpl implements EventService {
                     throw new ValidatedException("Participant limit is full");
                 }
 
-                CaseUpdatedStatusDto updatedStatusReject = statusHandler(event, CaseUpdatedStatusDto.builder()
+                final CaseUpdatedStatusDto updatedStatusReject = statusHandler(event, CaseUpdatedStatusDto.builder()
                         .idsFromUpdateStatus(update.getRequestIds()).build(), RequestStatus.REJECTED);
                 List<Request> rejectRequest = requestRepository.findAllById(updatedStatusReject.getProcessedIds());
                 log.debug("Reject requests '{}'", rejectRequest.size());

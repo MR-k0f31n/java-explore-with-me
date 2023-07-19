@@ -44,18 +44,7 @@ public class RequestServiceImpl implements RequestService {
         final Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id '" + eventId + "' not found"));
         final LocalDateTime createdOn = LocalDateTime.now();
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new ValidatedException("Owner cannot be a member");
-        }
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
-            throw new ValidatedException("Limit seat is full");
-        }
-        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
-            throw new ValidatedException("Event not published");
-        }
-        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) {
-            throw new ValidatedException("Cannot add duplicate request");
-        }
+        validationNewRequest(event, userId, eventId);
         final Request request = new Request();
         request.setCreated(createdOn);
         request.setRequester(user);
@@ -75,6 +64,21 @@ public class RequestServiceImpl implements RequestService {
             request.setStatus(RequestStatus.CONFIRMED);
         }
         return toDto(request);
+    }
+
+    private void validationNewRequest(Event event, Long userId, Long eventId) {
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ValidatedException("Owner cannot be a member");
+        }
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
+            throw new ValidatedException("Limit seat is full");
+        }
+        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
+            throw new ValidatedException("Event not published");
+        }
+        if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) {
+            throw new ValidatedException("Cannot add duplicate request");
+        }
     }
 
     @Override

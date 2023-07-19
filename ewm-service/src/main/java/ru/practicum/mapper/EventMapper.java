@@ -7,6 +7,7 @@ import ru.practicum.model.Event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -63,13 +64,9 @@ public class EventMapper {
                 .build();
     }
 
-    public static List<EventShortDto> toShortDtoList(Iterable<Event> events) {
-        List<EventShortDto> result = new ArrayList<>();
-        if (events != null) {
-            for (Event event : events) {
-                result.add(toShortDto(event));
-            }
-        }
-        return result;
+    public static List<EventShortDto> toShortDtoList(List<Event> events) {
+        return events == null ?
+                new ArrayList<>() :
+                events.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
     }
 }

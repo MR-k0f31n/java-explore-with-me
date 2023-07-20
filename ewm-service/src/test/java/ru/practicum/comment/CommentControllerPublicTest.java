@@ -3,9 +3,12 @@ package ru.practicum.comment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.controller.CommentControllerPublic;
 import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.user.UserShortDto;
@@ -14,22 +17,22 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 /**
  * @author MR.k0F31n
  */
-public class CommentControllerTest {
+@WebMvcTest(CommentControllerPublic.class)
+@AutoConfigureMockMvc
+public class CommentControllerPublicTest {
     @MockBean
     private CommentService commentService;
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper mapper;
 
     private final CommentDto comment1 = CommentDto.builder()
             .id(1L)
@@ -54,12 +57,15 @@ public class CommentControllerTest {
 
     @Test
     void getAllCommentByEvent_returnCommentDtoList() throws Exception {
-        when(commentService.getAllCommentsFromEvent(1L, any(Pageable.class)))
+        when(commentService.getAllCommentsFromEvent(anyLong(), any(Pageable.class)))
                 .thenReturn(List.of(comment1, comment2, comment3));
 
-        mockMvc.perform(get("event/{eventId}/comments", 1L)
-                .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/event/{eventId}/comments", 1L))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]."))
+                .andExpect(jsonPath("$[0].id", is(comment1.getId()), Long.class))
+                .andExpect(jsonPath("$[2].id", is(comment3.getId()), Long.class));
+
+        verify(commentService, times(1)).getAllCommentsFromEvent(anyLong(), any(Pageable.class));
     }
 }

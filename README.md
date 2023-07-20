@@ -233,4 +233,9 @@ POST /admin/compilations
 DELETE /admin/
 ~~~
 
+### Комментирование событий
+
+## Адмни панель:
+
+
 ##### Template repository for ExploreWithMe project.

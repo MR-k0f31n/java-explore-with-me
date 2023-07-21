@@ -27,29 +27,38 @@
 - REST API
 - java 11
 - Spring BOOT
-- H2 SQL
 - Maven
 - PostgreSQL
 - Docker
-
-## Structure DB
-
-## DB state
-
-<img src="./State_db.png">
-
 
 ---
 Приложение состоит из 2 сервисов
 
 1. Основаня часть
+
+`Основная часть приложения работает на порту 8080`
+
 2. Сервис сбора аналитики
+
+`Сервис статистики работает на порту 9090`
+
+## Structure DB
+
+<img src="./State_db.png">
 
 ---
 
 ## Сбор аналитики подразумевает:
 
 - Хранение общей информации к какому эндпоинту, в каком количестве были запросы
+
+---
+## Инструкция по развертыванию проекта:
+1. Скачать данный репозиторий
+2. mvn clean
+3. mvn package
+4. docker-compose build
+5. docker-compose up -d
 
 ---
 
@@ -233,9 +242,13 @@ POST /admin/compilations
 DELETE /admin/
 ~~~
 
-### Комментирование событий
+### Комментирование
 
-## Адмни панель:
+- Удаление комментария пользователя
+
+~
+DELETE /admin/comments/{commentId}
+~
 
 
 ##### Template repository for ExploreWithMe project.

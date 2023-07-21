@@ -96,6 +96,16 @@ GET /categories
 GET /categories/{catId}
 ~~~
 
+### Комментирование:
+
+- Получить все комментарии текущего события
+
+~~~
+GET /users/{userId}/comments
+~~~
+
+###
+
 ---
 
 ## Возможности доступные зарегистрированным пользователям:
@@ -161,6 +171,36 @@ POST /users/{userId}/requests
 ~~~
 PATCH /users/{userId}/request/{requestId}/cancel
 ~~~
+
+###
+
+## Комментирование:
+
+- Добавить новый комментарий
+
+~~~
+POST /users/{userId}/comments
+~~~
+
+- Получить все комментарии текущего пользователя
+
+~~~
+GET /users/{userId}/comments
+~~~
+
+- Редактирование комментария текущего пользователя
+
+~~~
+PATH /users/{userId}/comments/{commentId}
+~~~
+
+- Удалить комментарий текущего пользователя
+
+~~~
+DELETE /users/{userId}/comments/{commentId}
+~~~
+
+###
 
 ---
 
@@ -246,9 +286,14 @@ DELETE /admin/
 
 - Удаление комментария пользователя
 
-~
+~~~
 DELETE /admin/comments/{commentId}
-~
+~~~
 
+- Поиск комментария по ключевым словам
+
+~~~
+GET /admin/comments/{commentId}
+~~~
 
 ##### Template repository for ExploreWithMe project.

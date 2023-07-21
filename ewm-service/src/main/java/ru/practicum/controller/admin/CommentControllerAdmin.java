@@ -38,7 +38,7 @@ public class CommentControllerAdmin {
     public List<CommentDto> searchComment(@RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                           @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size,
                                           @RequestParam String text) {
-        log.trace("Endpoint request: DELETE /admin/comments/{commentId}");
+        log.trace("Endpoint request: GET /admin/comments/{commentId}");
         log.debug("Param: pageable from = '{}', size = '{}'", from, size);
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         return commentService.searchCommentByText(text, pageable);

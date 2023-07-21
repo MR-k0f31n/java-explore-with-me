@@ -6,35 +6,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.controller.CommentControllerPublic;
-import ru.practicum.controller.users.CommentControllerUsers;
+import org.w3c.dom.Text;
+import ru.practicum.controller.admin.CommentControllerAdmin;
 import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.input.NewCommentDto;
 import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.service.CommentService;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 /**
- * @author MR.k0F31n
+ * @author MR.k0F31N
  */
-@WebMvcTest(CommentControllerPublic.class)
+
+@WebMvcTest(CommentControllerAdmin.class)
 @AutoConfigureMockMvc
-public class CommentControllerPublicTest {
+public class CommentControllerAdminTest {
     @MockBean
     private CommentService commentService;
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper mapper;
 
     private final CommentDto comment1 = CommentDto.builder()
             .id(1L)
@@ -58,16 +61,17 @@ public class CommentControllerPublicTest {
             .build();
 
     @Test
-    void getAllCommentByEvent_returnCommentDtoList() throws Exception {
-        when(commentService.getAllCommentsFromEvent(anyLong(), any(Pageable.class)))
-                .thenReturn(List.of(comment1, comment2, comment3));
+    public void getAllCommentByText_returnListDto() throws Exception {
+        when(commentService.searchCommentByText(any(String.class), any(Pageable.class)))
+                .thenReturn(Arrays.asList(comment1, comment2, comment3));
 
-        mockMvc.perform(get("/event/{eventId}/comments", 1L))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/admin/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("text", "коммент")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is(comment1.getId()), Long.class))
-                .andExpect(jsonPath("$[2].id", is(comment3.getId()), Long.class));
+                .andExpect(jsonPath("$[0].text", is(comment1.getText())))
+                .andExpect(jsonPath("$[2].text", is(comment3.getText())));
 
-        verify(commentService, times(1)).getAllCommentsFromEvent(anyLong(), any(Pageable.class));
     }
 }

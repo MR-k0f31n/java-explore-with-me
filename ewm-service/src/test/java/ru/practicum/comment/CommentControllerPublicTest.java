@@ -62,7 +62,7 @@ public class CommentControllerPublicTest {
         when(commentService.getAllCommentsFromEvent(anyLong(), any(Pageable.class)))
                 .thenReturn(List.of(comment1, comment2, comment3));
 
-        mockMvc.perform(get("/event/{eventId}/comments", 1L))
+        mockMvc.perform(get("/events/{eventId}/comments", 1L))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(comment1.getId()), Long.class))

@@ -17,5 +17,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     void deleteByIdAndAuthorId(Long commentId, Long userId);
 
-    List<Comment> findAllByTextIgnoreCase(String text, Pageable pageable);
+    List<Comment> findAllByTextContainingIgnoreCase(String text, Pageable pageable);
 }

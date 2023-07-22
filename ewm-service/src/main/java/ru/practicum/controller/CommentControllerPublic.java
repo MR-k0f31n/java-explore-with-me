@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("/event/{eventId}/comments")
+@RequestMapping("/events/{eventId}/comments")
 public class CommentControllerPublic {
     private final CommentService commentService;
 
@@ -28,7 +28,7 @@ public class CommentControllerPublic {
     public List<CommentDto> getAllCommentByEvent(@PathVariable(value = "eventId") @Min(0) Long eventId,
                                                  @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                                  @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
-        log.trace("Endpoint request: GET /users/{userId}/comments");
+        log.trace("Endpoint request: GET /events/{eventId}/comments");
         log.debug("Param: event id = '{}', from = '{}', size = '{}'", eventId, from, size);
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         return commentService.getAllCommentsFromEvent(eventId, pageable);

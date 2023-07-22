@@ -102,9 +102,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDto> searchCommentByText(String text, Pageable pageable) {
+        List<Comment> comments = commentRepository.findAllByTextContainingIgnoreCase(text, pageable);
         return text.isBlank() ?
                 new ArrayList<>() :
-                commentRepository.findAllByTextIgnoreCase(text, pageable).stream()
+                commentRepository.findAllByTextContainingIgnoreCase(text, pageable).stream()
                         .map(CommentMapper::toDto)
                         .collect(Collectors.toList());
     }
@@ -132,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
 
     private void isEventExists(Long eventId) {
         if (!eventRepository.existsById(eventId)) {
-            throw new NotFoundException(String.format("User with id = '%d' not found", eventId));
+            throw new NotFoundException(String.format("Event with id = '%d' not found", eventId));
         }
     }
 

@@ -362,11 +362,11 @@
 							"variable": [
 								{
 									"key": "userId",
-									"value": "1"
+									"value": "{{uid}}"
 								},
 								{
 									"key": "commentId",
-									"value": "1"
+									"value": "3"
 								}
 							]
 						}
@@ -420,7 +420,7 @@
 								},
 								{
 									"key": "commentId",
-									"value": "1"
+									"value": "3"
 								}
 							]
 						}

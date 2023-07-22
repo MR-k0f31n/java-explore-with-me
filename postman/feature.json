@@ -303,6 +303,244 @@
 					"response": []
 				},
 				{
+					"name": "Добавление коммента Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Тест создание комментария\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('text');",
+									"    pm.expect(jsonData.text, '\"text\" должен быть \"Первый! ... комм!\"').to.eql('Первый! ... комм!');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Статус ответа должен быть 201\", function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"",
+									"pm.test(\"Проверка обьекта\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData.author).to.exist.and.to.be.an('object');",
+									"    pm.expect(responseData.author.id).to.exist.and.to.be.a('number');",
+									"    pm.expect(responseData.author.name).to.exist.and.to.be.a('string');",
+									"});",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"comId\", jsonData.id);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"        pm.collectionVariables.set(\"eventId\", event.id)\r",
+									"        pm.collectionVariables.set(\"userId\", user.id)\r",
+									"        pm.collectionVariables.set('response', event);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Первый! ... комм!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eventId}}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Добавление коммента Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Тест создание комментария\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('text');",
+									"    pm.expect(jsonData.text, '\"text\" должен быть \"Первый! ... комм!\"').to.eql('Первый! ... комм!');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Статус ответа должен быть 201\", function () {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"",
+									"pm.test(\"Проверка обьекта\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData.author).to.exist.and.to.be.an('object');",
+									"    pm.expect(responseData.author.id).to.exist.and.to.be.a('number');",
+									"    pm.expect(responseData.author.name).to.exist.and.to.be.a('string');",
+									"});",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"comId\", jsonData.id);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const user = await api.addUser(rnd.getUser());\r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"        pm.collectionVariables.set(\"eventId\", event.id)\r",
+									"        pm.collectionVariables.set(\"userId\", user.id)\r",
+									"        pm.collectionVariables.set('response', event);\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            // выполняем наш скрипт\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Первый! ... комм!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eventId}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Редактирование комментария",
 					"event": [
 						{
@@ -362,7 +600,7 @@
 							"variable": [
 								{
 									"key": "userId",
-									"value": "{{uid}}"
+									"value": "1"
 								},
 								{
 									"key": "commentId",
@@ -546,7 +784,7 @@
 							"variable": [
 								{
 									"key": "userId",
-									"value": "{{uid}}"
+									"value": "1"
 								}
 							]
 						}

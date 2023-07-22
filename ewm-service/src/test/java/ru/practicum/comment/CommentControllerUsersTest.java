@@ -21,7 +21,8 @@ import java.util.Arrays;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author MR.k0F31N
@@ -30,27 +31,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CommentControllerUsers.class)
 @AutoConfigureMockMvc
 public class CommentControllerUsersTest {
-    @MockBean
-    private CommentService commentService;
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper mapper;
-
     private final CommentDto comment1 = CommentDto.builder()
             .id(1L)
             .text("Первый комментарий!")
             .author(UserShortDto.builder().id(1L).name("Name1").build())
             .event(EventShortDto.builder().id(1L).title("New event1").build())
             .build();
-
     private final CommentDto comment2 = CommentDto.builder()
             .id(2L)
             .text("Второй комментарий!")
             .author(UserShortDto.builder().id(2L).name("Name2").build())
             .event(EventShortDto.builder().id(1L).title("New event1").build())
             .build();
-
     private final CommentDto comment3 = CommentDto.builder()
             .id(3L)
             .text("Третий комментарий!")
@@ -59,6 +51,12 @@ public class CommentControllerUsersTest {
             .build();
     private final NewCommentDto newComment = NewCommentDto.builder().text("Первый комментарий!").build();
     private final NewCommentDto update = NewCommentDto.builder().text("Обновленный текст").build();
+    @MockBean
+    private CommentService commentService;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper mapper;
 
     @Test
     public void createNewComment_returnCommentDto() throws Exception {
@@ -101,13 +99,13 @@ public class CommentControllerUsersTest {
         when(commentService.updateComment(anyLong(), anyLong(), any(NewCommentDto.class))).thenReturn(commentAfterUpdate);
 
         mockMvc.perform(patch("/users/{userId}/comments/{commentId}", 1L, 1L)
-                .content(mapper.writeValueAsString(update))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                        .content(mapper.writeValueAsString(update))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1L), Long.class))
                 .andExpect(jsonPath("$.text", is(update.getText())));
 
-        verify(commentService,times(1)).updateComment(anyLong(), anyLong(), any(NewCommentDto.class));
+        verify(commentService, times(1)).updateComment(anyLong(), anyLong(), any(NewCommentDto.class));
     }
 }

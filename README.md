@@ -1,3 +1,6 @@
+### Ссылка на PR:
+[Pull-request](https://github.com/MR-k0f31n/java-explore-with-me/pull/7)
+
 # java-explore-with-me
 
 # Идея

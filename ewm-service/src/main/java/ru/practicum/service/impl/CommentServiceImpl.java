@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.comment.CommentDto;
 import ru.practicum.dto.input.NewCommentDto;
 import ru.practicum.exception.NotFoundException;
@@ -38,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public CommentDto createNewComment(Long userId, Long eventId, NewCommentDto input) {
         final LocalDateTime createdOn = LocalDateTime.now();
         final User author = getUserById(userId);
@@ -53,22 +55,20 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentDto updateComment(Long userId, Long commentId, NewCommentDto update) {
         isUserExists(userId);
         final Comment oldComment = getCommentById(commentId);
         isUserOwner(oldComment, userId);
 
-        Comment commentAfterUpdate = null;
         String updateComment = update.getText();
         log.debug("Text update comment: '{}'", updateComment);
         if (updateComment != null && !updateComment.isBlank()) {
             oldComment.setText(updateComment);
-            commentAfterUpdate = commentRepository.save(oldComment);
         }
-        log.debug("Comment updated [{}]", commentAfterUpdate);
-        return commentAfterUpdate == null ?
+        return updateComment == null ?
                 null :
-                toDto(commentAfterUpdate);
+                toDto(commentRepository.save(oldComment));
     }
 
     @Override
@@ -88,6 +88,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteCommentFromOwner(Long userId, Long commentId) {
         isUserExists(userId);
         commentRepository.deleteByIdAndAuthorId(commentId, userId);
@@ -95,6 +96,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteCommentFromAdmin(Long commentId) {
         commentRepository.deleteById(commentId);
         log.debug("Comment delete ? {}", !commentRepository.existsById(commentId));

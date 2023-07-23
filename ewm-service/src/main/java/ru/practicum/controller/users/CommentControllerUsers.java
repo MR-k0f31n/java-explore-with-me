@@ -2,7 +2,6 @@ package ru.practicum.controller.users;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,8 @@ import ru.practicum.service.CommentService;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+
+import static ru.practicum.util.MakePageable.createPageable;
 
 /**
  * @author MR.k0F31N
@@ -30,27 +31,27 @@ public class CommentControllerUsers {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createNewComment(@PathVariable(value = "userId") @Min(0) Long userId,
+    public CommentDto createNewComment(@PathVariable(value = "userId") Long userId,
                                        @Valid @RequestBody NewCommentDto input,
-                                       @Valid @RequestParam(value = "eventId") @Min(0) Long eventId) {
+                                       @RequestParam(value = "eventId") Long eventId) {
         log.trace("Endpoint request: POST /users/{userId}/comments");
         log.debug("Param: user id = '{}', event id = '{}', input body = [{}]", userId, eventId, input);
         return commentService.createNewComment(userId, eventId, input);
     }
 
     @GetMapping
-    public List<CommentDto> getAllCommentByUser(@PathVariable(value = "userId") @Min(0) Long userId,
+    public List<CommentDto> getAllCommentByUser(@PathVariable(value = "userId") Long userId,
                                                 @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                                 @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
         log.trace("Endpoint request: GET /users/{userId}/comments");
         log.debug("Param: user id = '{}', from = '{}', size = '{}'", userId, from, size);
-        final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        final Pageable pageable = createPageable(from, size, Sort.Direction.DESC, "createdDate");
         return commentService.getAllCommentsFromUser(userId, pageable);
     }
 
     @PatchMapping("/{commentId}")
-    public CommentDto updateComment(@PathVariable(value = "userId") @Min(0) Long userId,
-                                    @PathVariable(value = "commentId") @Min(0) Long commentId,
+    public CommentDto updateComment(@PathVariable(value = "userId") Long userId,
+                                    @PathVariable(value = "commentId") Long commentId,
                                     @Valid @RequestBody NewCommentDto update) {
         log.trace("Endpoint request: PATH /users/{userId}/comments/{commentId}");
         log.debug("Param: user id = '{}', comment id = '{}', update = [{}]", userId, commentId, update);
@@ -59,8 +60,8 @@ public class CommentControllerUsers {
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable(value = "userId") @Min(0) Long userId,
-                              @PathVariable(value = "commentId") @Min(0) Long commentId) {
+    public void deleteComment(@PathVariable(value = "userId") Long userId,
+                              @PathVariable(value = "commentId") Long commentId) {
         log.trace("Endpoint request: DELETE /users/{userId}/comments/{commentId}");
         log.debug("Param: user id = '{}', comment id = '{}'", userId, commentId);
         commentService.deleteCommentFromOwner(userId, commentId);

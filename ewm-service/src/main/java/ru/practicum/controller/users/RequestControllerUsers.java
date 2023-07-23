@@ -9,7 +9,6 @@ import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.RequestService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -26,7 +25,7 @@ public class RequestControllerUsers {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ParticipationRequestDto createNewRequest(@PathVariable(value = "userId") @Min(0) Long userId,
+    public ParticipationRequestDto createNewRequest(@PathVariable(value = "userId") Long userId,
                                                     @Valid @RequestParam(name = "eventId") Long eventId) {
         log.trace("Endpoint request: POST users/{userId}/requests");
         log.debug("Param: user id '{}', event id '{}'", userId, eventId);
@@ -34,7 +33,7 @@ public class RequestControllerUsers {
     }
 
     @GetMapping
-    public List<ParticipationRequestDto> getAllRequests(@PathVariable(value = "userId") @Min(0) Long userId) {
+    public List<ParticipationRequestDto> getAllRequests(@PathVariable(value = "userId") Long userId) {
         log.trace("Endpoint request: GET users/{userId}/requests");
         log.debug("Param: user id '{}'", userId);
         return requestService.getAllRequests(userId);
@@ -42,8 +41,8 @@ public class RequestControllerUsers {
 
     @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(HttpStatus.OK)
-    public ParticipationRequestDto canceledRequest(@PathVariable(value = "userId") @Min(0) Long userId,
-                                                   @PathVariable(value = "requestId") @Min(0) Long requestId) {
+    public ParticipationRequestDto canceledRequest(@PathVariable(value = "userId") Long userId,
+                                                   @PathVariable(value = "requestId") Long requestId) {
         log.trace("Endpoint request: GET /users/{userId}/requests/{requestId}/cancel");
         log.debug("Param: user id '{}', request id '{}'", userId, requestId);
         return requestService.cancel(userId, requestId);

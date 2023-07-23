@@ -2,7 +2,6 @@ package ru.practicum.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +15,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.util.MakePageable.createPageable;
 
 /**
  * @author MR.k0F31N
@@ -40,12 +41,12 @@ public class EventControllerAdmin {
         log.trace("Endpoint request: GET /admin/events");
         log.debug("Param: search id user = '{}', search state events = '{}', search id categories = '{}', range start = '{}', " +
                 "range end = '{}', pageable from = '{}', pageable size = '{}'", users, states, categories, rangeStart, rangeEnd, from, size);
-        final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
+        final Pageable pageable = createPageable(from, size, Sort.Direction.ASC, "id");
         return eventService.getAllEventForParamFromAdmin(users, states, categories, rangeStart, rangeEnd, pageable);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventByAdmin(@PathVariable(value = "eventId") @Min(1) Long eventId,
+    public EventFullDto updateEventByAdmin(@PathVariable(value = "eventId") Long eventId,
                                            @RequestBody @Valid UpdateEventAdminRequest inputUpdate) {
         log.trace("Endpoint request: PATCH /admin/events/{eventId}");
         log.debug("Param: event id = '{}', object update = '{}'", eventId, inputUpdate);

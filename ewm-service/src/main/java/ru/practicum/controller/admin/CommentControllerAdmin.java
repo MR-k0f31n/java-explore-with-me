@@ -2,7 +2,6 @@ package ru.practicum.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,6 +12,8 @@ import ru.practicum.service.CommentService;
 
 import javax.validation.constraints.Min;
 import java.util.List;
+
+import static ru.practicum.util.MakePageable.createPageable;
 
 /**
  * @author MR.k0F31N
@@ -27,7 +28,7 @@ public class CommentControllerAdmin {
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable(value = "commentId") @Min(0) Long commentId) {
+    public void deleteComment(@PathVariable(value = "commentId") Long commentId) {
         log.trace("Endpoint request: DELETE /admin/comments/{commentId}");
         log.debug("Param: path variable '{}'", commentId);
         commentService.deleteCommentFromAdmin(commentId);
@@ -40,7 +41,7 @@ public class CommentControllerAdmin {
                                           @RequestParam String text) {
         log.trace("Endpoint request: GET /admin/comments");
         log.debug("Param: pageable from = '{}', size = '{}'", from, size);
-        final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        final Pageable pageable = createPageable(from, size, Sort.Direction.DESC, "createdDate");
         return commentService.searchCommentByText(text, pageable);
     }
 }

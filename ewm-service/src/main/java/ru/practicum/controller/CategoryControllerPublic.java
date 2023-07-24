@@ -2,7 +2,6 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,6 +12,8 @@ import ru.practicum.service.CategoryService;
 
 import javax.validation.constraints.Min;
 import java.util.List;
+
+import static ru.practicum.util.MakePageable.createPageable;
 
 /**
  * @author MR.k0F31n
@@ -31,13 +32,13 @@ public class CategoryControllerPublic {
                                     @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
         log.trace("Endpoint request: GET /categories");
         log.debug("Param: from = '{}', size = '{}'", from, size);
-        final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
+        final Pageable pageable = createPageable(from, size, Sort.Direction.ASC, "id");
         return categoryService.getAll(pageable);
     }
 
     @GetMapping("/{catId}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryDto getById(@PathVariable(value = "catId") @Min(1) Long catId) {
+    public CategoryDto getById(@PathVariable(value = "catId") Long catId) {
         log.trace("Endpoint request: GET /categories/{catId}");
         log.debug("Param: categoryId = '{}'", catId);
         return categoryService.getById(catId);

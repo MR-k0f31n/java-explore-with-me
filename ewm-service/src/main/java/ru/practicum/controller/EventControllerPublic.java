@@ -2,8 +2,8 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.util.MakePageable.createPageable;
 
 /**
  * @author MR.k0F31n
@@ -43,12 +45,12 @@ public class EventControllerPublic {
         log.debug("Param: search by = '{}', id categories = '{}', paid = {}, start range = '{}', end range = '{}', " +
                         "only available = {}, sort by = '{}', pageable from = '{}', pageable size = '{}'", text, categories, paid,
                 rangeStart, rangeEnd, onlyAvailable, sort, from, size);
-        final Pageable pageable = PageRequest.of(from / size, size);
+        final Pageable pageable = createPageable(from, size, Sort.Direction.ASC, "id");
         return eventService.getAllEventFromPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, pageable, request);
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEventById(@PathVariable(value = "eventId") @Min(1) Long eventId,
+    public EventFullDto getEventById(@PathVariable(value = "eventId") Long eventId,
                                      HttpServletRequest request) {
         log.trace("Public endpoint request: GET /events/{eventId}");
         log.debug("Param: event id ='{}'", eventId);

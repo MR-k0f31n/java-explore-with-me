@@ -1,3 +1,6 @@
+### Ссылка на PR:
+[Pull-request](https://github.com/MR-k0f31n/java-explore-with-me/pull/7)
+
 # java-explore-with-me
 
 # Идея
@@ -27,29 +30,40 @@
 - REST API
 - java 11
 - Spring BOOT
-- H2 SQL
 - Maven
 - PostgreSQL
 - Docker
-
-## Structure DB
-
-## DB state
-
-<img src="./State_db.png">
-
 
 ---
 Приложение состоит из 2 сервисов
 
 1. Основаня часть
+
+`Основная часть приложения работает на порту 8080`
+
 2. Сервис сбора аналитики
+
+`Сервис статистики работает на порту 9090`
+
+## Structure DB
+
+<img src="./State_db.png">
 
 ---
 
 ## Сбор аналитики подразумевает:
 
 - Хранение общей информации к какому эндпоинту, в каком количестве были запросы
+
+---
+
+## Инструкция по развертыванию проекта:
+
+1. Скачать данный репозиторий
+2. mvn clean
+3. mvn package
+4. docker-compose build
+5. docker-compose up -d
 
 ---
 
@@ -86,6 +100,16 @@ GET /categories
 ~~~
 GET /categories/{catId}
 ~~~
+
+### Комментирование:
+
+- Получить все комментарии текущего события
+
+~~~
+GET /users/{userId}/comments
+~~~
+
+###
 
 ---
 
@@ -152,6 +176,36 @@ POST /users/{userId}/requests
 ~~~
 PATCH /users/{userId}/request/{requestId}/cancel
 ~~~
+
+###
+
+## Комментирование:
+
+- Добавить новый комментарий
+
+~~~
+POST /users/{userId}/comments
+~~~
+
+- Получить все комментарии текущего пользователя
+
+~~~
+GET /users/{userId}/comments
+~~~
+
+- Редактирование комментария текущего пользователя
+
+~~~
+PATH /users/{userId}/comments/{commentId}
+~~~
+
+- Удалить комментарий текущего пользователя
+
+~~~
+DELETE /users/{userId}/comments/{commentId}
+~~~
+
+###
 
 ---
 
@@ -231,6 +285,20 @@ POST /admin/compilations
 
 ~~~
 DELETE /admin/
+~~~
+
+### Комментирование
+
+- Удаление комментария пользователя
+
+~~~
+DELETE /admin/comments/{commentId}
+~~~
+
+- Поиск комментария по ключевым словам
+
+~~~
+GET /admin/comments/{commentId}
 ~~~
 
 ##### Template repository for ExploreWithMe project.
